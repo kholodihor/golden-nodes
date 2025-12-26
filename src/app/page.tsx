@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Client } from "./client";
-import { getQueryClient, trpc } from "@/src/trpc/server";
+import { getQueryClient, trpc } from "@/trpc/server";
 
 export default function Home() {
   const queryClient = getQueryClient();
