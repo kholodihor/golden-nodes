@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  output   = "../prisma/generated/prisma"
 }
 
 datasource db {
@@ -69,4 +69,9 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model Workflow {
+  id   String @id @default(cuid())
+  name String
 }

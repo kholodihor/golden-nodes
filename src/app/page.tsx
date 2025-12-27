@@ -5,7 +5,7 @@ import { getQueryClient, trpc } from "@/trpc/server";
 export default function Home() {
   const queryClient = getQueryClient();
 
-  void queryClient.prefetchQuery(trpc.getUsers.queryOptions());
+  void queryClient.prefetchQuery(trpc.getWorkflows.queryOptions());
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
