@@ -19,9 +19,16 @@ export const Client = () => {
     }
   }));
 
+  const testAI = useMutation(trpc.testAI.mutationOptions({
+    onError: (error) => {
+      console.error(error);
+    }
+  }))
+
   return (
     <div className="flex flex-col justify-center items-center gap-2">
       {JSON.stringify(data.workflows, null, 2)}
       <Button disabled={create.isPending} onClick={() => create.mutate({ name: 'New Test Workflow 22' })}>Create Test Workflow</Button>
+      <Button disabled={testAI.isPending} onClick={() => testAI.mutate()}>Test AI</Button>
     </div>)
 }
