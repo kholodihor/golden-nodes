@@ -2,6 +2,7 @@ import { z } from "zod";
 import { protectedProcedure, createTRPCRouter } from "../init";
 import prisma from "@/lib/prisma";
 import { TRPCError } from "@trpc/server";
+import { PAGINATION } from "@/config/constants";
 
 const createWorkflowSchema = z.object({
   name: z
@@ -18,8 +19,18 @@ const updateWorkflowSchema = z.object({
     .max(100, "Name must be less than 100 characters"),
 });
 
+const paginationSchema = z.object({
+  page: z.number().min(PAGINATION.MIN_PAGE).default(PAGINATION.DEFAULT_PAGE),
+  pageSize: z
+    .number()
+    .min(PAGINATION.MIN_PAGE_SIZE)
+    .max(PAGINATION.MAX_PAGE_SIZE)
+    .default(PAGINATION.DEFAULT_PAGE_SIZE),
+  search: z.string().default(""),
+});
+
 const getWorkflowSchema = z.object({
-  id: z.string().cuid("Invalid workflow ID"),
+  id: z.string(),
 });
 
 export const workflowsRouter = createTRPCRouter({
@@ -38,18 +49,54 @@ export const workflowsRouter = createTRPCRouter({
     }),
 
   // READ - Get all workflows for the authenticated user
-  getMany: protectedProcedure.query(async ({ ctx }) => {
-    const workflows = await prisma.workflow.findMany({
-      where: {
-        userId: ctx.auth.user.id,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+  getMany: protectedProcedure
+    .input(paginationSchema)
+    .query(async ({ ctx, input }) => {
+      const { page, pageSize, search } = input;
+      const skip = (page - 1) * pageSize;
 
-    return workflows;
-  }),
+      // Build where clause with optional search
+      const whereClause = {
+        userId: ctx.auth.user.id,
+        ...(search && {
+          name: {
+            contains: search,
+            mode: "insensitive" as const,
+          },
+        }),
+      };
+
+      const [workflows, totalCount] = await Promise.all([
+        prisma.workflow.findMany({
+          where: whereClause,
+          orderBy: {
+            createdAt: "desc",
+          },
+          skip,
+          take: pageSize,
+        }),
+        prisma.workflow.count({
+          where: whereClause,
+        }),
+      ]);
+
+      const totalPages = Math.ceil(totalCount / pageSize);
+      const hasNextPage = page < totalPages;
+      const hasPreviousPage = page > 1;
+
+      return {
+        workflows,
+        pagination: {
+          page,
+          pageSize,
+          totalCount,
+          totalPages,
+          hasNextPage,
+          hasPreviousPage,
+          search,
+        },
+      };
+    }),
 
   // READ - Get a single workflow by ID
   getById: protectedProcedure
