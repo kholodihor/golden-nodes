@@ -1,6 +1,13 @@
 "use client";
 
-import { CreditCardIcon, KeyIcon, LogOutIcon, WorkflowIcon, ActivityIcon, StarIcon } from "lucide-react";
+import {
+  CreditCardIcon,
+  KeyIcon,
+  LogOutIcon,
+  WorkflowIcon,
+  ActivityIcon,
+  StarIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -154,12 +161,18 @@ const AppSidebar = () => {
               <Avatar className="h-8 w-8">
                 <AvatarImage src={session?.user?.image || ""} alt="User" />
                 <AvatarFallback>
-                  {session?.user?.name?.[0]?.toUpperCase() || session?.user?.email?.[0]?.toUpperCase() || "U"}
+                  {session?.user?.name?.[0]?.toUpperCase() ||
+                    session?.user?.email?.[0]?.toUpperCase() ||
+                    "U"}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
-                <span className="text-sm font-medium">{session?.user?.name || "User"}</span>
-                <span className="text-xs text-muted-foreground">{session?.user?.email}</span>
+                <span className="text-sm font-medium">
+                  {session?.user?.name || "User"}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {session?.user?.email}
+                </span>
               </div>
             </div>
           </SidebarMenuItem>

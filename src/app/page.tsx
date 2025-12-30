@@ -8,7 +8,7 @@ export default async function Home() {
 
   const queryClient = getQueryClient();
 
-  void queryClient.prefetchQuery(trpc.getWorkflows.queryOptions());
+  void queryClient.prefetchQuery(trpc.workflows.getMany.queryOptions());
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">

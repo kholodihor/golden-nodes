@@ -1,4 +1,4 @@
-import { WorkflowsList } from "@/components/workflows";
+import { WorkflowsContainer, WorkflowsList } from "@/components/workflows";
 import { prefetchWorkflows } from "@/helpers/prefetch";
 import { HydrateClient } from "@/trpc/server";
 import { requireAuth } from "@/utils/auth";
@@ -10,13 +10,15 @@ const page = async () => {
   prefetchWorkflows();
 
   return (
-    <HydrateClient>
-      <ErrorBoundary fallback={<p>Something went wrong</p>}>
-        <Suspense fallback={<p>Loading...</p>}>
-          <WorkflowsList />
-        </Suspense>
-      </ErrorBoundary>
-    </HydrateClient>
+    <WorkflowsContainer>
+      <HydrateClient>
+        <ErrorBoundary fallback={<p>Something went wrong</p>}>
+          <Suspense fallback={<p>Loading...</p>}>
+            <WorkflowsList />
+          </Suspense>
+        </ErrorBoundary>
+      </HydrateClient>
+    </WorkflowsContainer>
   );
 };
 
