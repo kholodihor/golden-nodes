@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "inngest": "npx inngest-cli@latest dev",
     "dev:all": "npx mprocs"
   },
@@ -80,6 +81,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
+    "eslint-config-prettier": "^10.1.0",
+    "prettier": "^3.6.2",
     "prisma": "^6.19.1",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",

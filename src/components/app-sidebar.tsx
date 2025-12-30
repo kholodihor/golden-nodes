@@ -1,16 +1,29 @@
-'use client'
+"use client";
 
-import { CreditCardIcon, HistoryIcon, KeyIcon, LogOutIcon, HomeIcon, WorkflowIcon, ActivityIcon, StarIcon } from "lucide-react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { authClient, useSession } from "@/lib/auth-client"
+import { CreditCardIcon, KeyIcon, LogOutIcon, WorkflowIcon, ActivityIcon, StarIcon } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "./ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { authClient, useSession } from "@/lib/auth-client";
+import { useHasActiveSubscription } from "@/hooks/use-subscription";
 
 const AppSidebar = () => {
-  const pathname = usePathname()
-  const router = useRouter()
-  const { data: session } = useSession()
+  const pathname = usePathname();
+  const router = useRouter();
+  const { data: session } = useSession();
+  const { hasActiveSubscription, isLoading } = useHasActiveSubscription();
 
   const navigationItems = [
     {
@@ -28,39 +41,19 @@ const AppSidebar = () => {
       icon: KeyIcon,
       href: "/credentials",
     },
-    // {
-    //   title: "History",
-    //   icon: HistoryIcon,
-    //   href: "/history",
-    // },
-  ]
+  ];
 
   const secondaryItems = [
-    // {
-    //   title: "Settings",
-    //   icon: SettingsIcon,
-    //   href: "/dashboard/settings",
-    // },
     {
       title: "Billing",
       icon: CreditCardIcon,
       href: "/billing",
     },
-    {
-      title: 'Upgrade to Pro',
-      icon: StarIcon,
-      href: '/upgrade',
-    },
-    // {
-    //   title: "Logout",
-    //   icon: LogOutIcon,
-    //   href: "/logout",
-    // },
-  ]
+  ];
 
   const isActive = (href: string) => {
-    return href === '/' ? pathname === '/' : pathname.startsWith(href)
-  }
+    return href === "/" ? pathname === "/" : pathname.startsWith(href);
+  };
 
   return (
     <Sidebar>
@@ -78,7 +71,7 @@ const AppSidebar = () => {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => (
+              {navigationItems.map(item => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
@@ -93,7 +86,6 @@ const AppSidebar = () => {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -101,7 +93,7 @@ const AppSidebar = () => {
 
       <SidebarFooter className="p-4 pb-8">
         <SidebarMenu>
-          {secondaryItems.map((item) => (
+          {secondaryItems.map(item => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
@@ -116,18 +108,40 @@ const AppSidebar = () => {
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
+          {!hasActiveSubscription && !isLoading && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                tooltip={"Upgrade to Pro"}
+                className="gap-x-4 h-10 px-4"
+                onClick={() =>
+                  authClient.checkout({
+                    slug: "pro",
+                  })
+                }
+              >
+                <div>
+                  <StarIcon size={4} />
+                  <span>Upgrade to Pro</span>
+                </div>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
+
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              tooltip={'Sign Out'}
+              tooltip={"Sign Out"}
               className="gap-x-4 h-10 px-4"
-              onClick={() => authClient.signOut({
-                fetchOptions: {
-                  onSuccess: () => {
-                    router.push('/login')
-                  }
-                }
-              })}
+              onClick={() =>
+                authClient.signOut({
+                  fetchOptions: {
+                    onSuccess: () => {
+                      router.push("/login");
+                    },
+                  },
+                })
+              }
             >
               <div>
                 <LogOutIcon size={4} />
@@ -144,19 +158,15 @@ const AppSidebar = () => {
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
-                <span className="text-sm font-medium">
-                  {session?.user?.name || "User"}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {session?.user?.email}
-                </span>
+                <span className="text-sm font-medium">{session?.user?.name || "User"}</span>
+                <span className="text-xs text-muted-foreground">{session?.user?.email}</span>
               </div>
             </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
-  )
-}
+  );
+};
 
-export default AppSidebar
+export default AppSidebar;
