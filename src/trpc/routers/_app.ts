@@ -1,37 +1,8 @@
-import { z } from 'zod'
-import { baseProcedure, createTRPCRouter } from '../init';
-import prisma from '@/lib/prisma';
-import { inngest } from '@/inngest/client';
-import { google } from '@ai-sdk/google';
-import { generateText } from 'ai';
+import { createTRPCRouter } from "../init";
+import { workflowsRouter } from "./workflows";
 
 export const appRouter = createTRPCRouter({
-  testAI: baseProcedure.mutation(async () => {
-    await inngest.send({
-      name: "execute/ai"
-    });
-    return { success: true, message: 'Job queued' }
-  }),
-  getWorkflows: baseProcedure
-    .query(async () => {
-      const workflows = await prisma.workflow.findMany()
-      return {
-        workflows
-      };
-    }),
-  createWorkflow: baseProcedure
-    .input(z.object({
-      name: z.string()
-    }))
-    .mutation(async ({ input }) => {
-      await inngest.send({
-        name: 'test/create.workflow',
-        data: {
-          name: input.name
-        }
-      });
-      return { success: true, message: 'Job queued' }
-    }),
+  workflows: workflowsRouter,
 });
 // export type definition of API
 export type AppRouter = typeof appRouter;
