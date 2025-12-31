@@ -13,9 +13,11 @@ import EntityContainer from "./entities/entity-container";
 import UpgradeModal from "./upgrade-modal";
 import { SearchInput } from "./entities/search-input";
 import { PaginationControls } from "./entities/pagination-controls";
+import { WorkflowsEmpty } from "./ui/workflows-empty";
+import { WorkflowGrid } from "./workflows/workflow-card";
 
 // Types
-interface Workflow {
+export interface Workflow {
   id: string;
   name: string;
   createdAt: string;
@@ -72,13 +74,67 @@ const useWorkflowCreation = () => {
 
 export const WorkflowsList = () => {
   const workflows = useSuspenseWorkflows();
+  const { hasActiveSubscription, isLoading: isSubscriptionLoading } =
+    useHasActiveSubscription();
+  const upgradeModal = useUpgradeModal();
+  const { createNewWorkflow } = useWorkflowCreation();
+
+  const workflowCount = getWorkflowCount(workflows.data);
+  const canCreate = canCreateWorkflow(
+    hasActiveSubscription || false,
+    workflowCount,
+  );
+  const search = workflows.data.pagination.search;
+
+  // Show empty state if no workflows
+  if (workflowCount === 0) {
+    const handleCreate = () => {
+      if (isSubscriptionLoading) return;
+
+      if (hasActiveSubscription || canCreate) {
+        createNewWorkflow();
+      } else {
+        upgradeModal.openUpgradeModal();
+      }
+    };
+
+    return (
+      <WorkflowsEmpty
+        onCreate={handleCreate}
+        disabled={isSubscriptionLoading || !canCreate}
+        search={search}
+      />
+    );
+  }
+
+  const handleEdit = (id: string) => {
+    console.log("Edit workflow:", id);
+    // TODO: Navigate to edit page
+  };
+
+  const handleDelete = (id: string) => {
+    console.log("Delete workflow:", id);
+    // TODO: Implement delete functionality
+  };
+
+  const handleDuplicate = (id: string) => {
+    console.log("Duplicate workflow:", id);
+    // TODO: Implement duplicate functionality
+  };
+
+  const handleRun = (id: string) => {
+    console.log("Run workflow:", id);
+    // TODO: Implement run functionality
+  };
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-[200px]">
-      <pre className="text-xs text-muted-foreground bg-muted p-4 rounded-lg overflow-auto max-w-full">
-        {JSON.stringify(workflows.data, null, 2)}
-      </pre>
-    </div>
+    <WorkflowGrid
+      workflows={workflows.data.workflows}
+      onEdit={handleEdit}
+      onDelete={handleDelete}
+      onDuplicate={handleDuplicate}
+      onRun={handleRun}
+    />
   );
 };
 
@@ -102,7 +158,9 @@ export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
 
   // Event handlers
   const handleCreate = () => {
-    if (isSubscriptionLoading) return;
+    if (isSubscriptionLoading) {
+      return;
+    }
 
     if (hasActiveSubscription || canCreate) {
       createNewWorkflow();
@@ -115,7 +173,7 @@ export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
     <>
       <EntityHeader
         title="Workflows"
-        disabled={disabled || isSubscriptionLoading || !canCreate}
+        disabled={disabled || isSubscriptionLoading}
         description={description}
         newButtonLabel="New workflow"
         onNew={handleCreate}

@@ -2,10 +2,11 @@ import { WorkflowsContainer, WorkflowsList } from "@/components/workflows";
 import { prefetchWorkflows } from "@/helpers/prefetch";
 import { HydrateClient } from "@/trpc/server";
 import { requireAuth } from "@/utils/auth";
-import { ErrorBoundary } from "react-error-boundary";
 import { Suspense } from "react";
 import type { SearchParams } from "nuqs/server";
 import { workflowsParamsLoader } from "@/utils/params";
+import { PageLoadingView } from "@/components/ui/loading-view";
+import { ClientErrorBoundary } from "@/components/ui/client-error-boundary";
 
 type Props = {
   searchParams: Promise<SearchParams>;
@@ -21,11 +22,11 @@ const page = async ({ searchParams }: Props) => {
   return (
     <WorkflowsContainer>
       <HydrateClient>
-        <ErrorBoundary fallback={<p>Something went wrong</p>}>
-          <Suspense fallback={<p>Loading...</p>}>
+        <ClientErrorBoundary>
+          <Suspense fallback={<PageLoadingView />}>
             <WorkflowsList />
           </Suspense>
-        </ErrorBoundary>
+        </ClientErrorBoundary>
       </HydrateClient>
     </WorkflowsContainer>
   );
