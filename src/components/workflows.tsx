@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   useCreateeWorkflow,
   useSuspenseWorkflows,
+  useDeleteWorkflow,
 } from "@/hooks/use-workflows";
 import { useHasActiveSubscription } from "@/hooks/use-subscription";
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
@@ -15,6 +17,7 @@ import { SearchInput } from "./entities/search-input";
 import { PaginationControls } from "./entities/pagination-controls";
 import { WorkflowsEmpty } from "./ui/workflows-empty";
 import { WorkflowGrid } from "./workflows/workflow-card";
+import { CreateWorkflowModal } from "./workflows/create-workflow-modal";
 
 // Types
 export interface Workflow {
@@ -49,24 +52,12 @@ const canCreateWorkflow = (hasSubscription: boolean, workflowCount: number) =>
   hasSubscription || workflowCount < FREE_PLAN_LIMIT;
 
 // Custom hooks
-const useWorkflowCreation = () => {
+export const useWorkflowCreation = () => {
   const createWorkflow = useCreateeWorkflow();
   const router = useRouter();
 
-  const createNewWorkflow = () => {
-    createWorkflow.mutate(
-      { name: WORKFLOW_DEFAULT_NAME },
-      {
-        onSuccess: data => {
-          toast.success(`Workflow "${data.name}" created successfully`);
-          router.push(`/workflows/${data.id}`);
-        },
-        onError: error => {
-          toast.error("Failed to create workflow");
-          console.error("Failed to create workflow:", error);
-        },
-      },
-    );
+  const createNewWorkflow = ({ name }: { name: string }) => {
+    createWorkflow.mutate({ name });
   };
 
   return { createNewWorkflow, isCreating: createWorkflow.isPending };
@@ -78,6 +69,9 @@ export const WorkflowsList = () => {
     useHasActiveSubscription();
   const upgradeModal = useUpgradeModal();
   const { createNewWorkflow } = useWorkflowCreation();
+  const deleteWorkflow = useDeleteWorkflow();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const workflowCount = getWorkflowCount(workflows.data);
   const canCreate = canCreateWorkflow(
@@ -92,18 +86,24 @@ export const WorkflowsList = () => {
       if (isSubscriptionLoading) return;
 
       if (hasActiveSubscription || canCreate) {
-        createNewWorkflow();
+        setIsCreateModalOpen(true);
       } else {
         upgradeModal.openUpgradeModal();
       }
     };
 
     return (
-      <WorkflowsEmpty
-        onCreate={handleCreate}
-        disabled={isSubscriptionLoading || !canCreate}
-        search={search}
-      />
+      <>
+        <WorkflowsEmpty
+          onCreate={handleCreate}
+          disabled={isSubscriptionLoading || !canCreate}
+          search={search}
+        />
+        <CreateWorkflowModal
+          open={isCreateModalOpen}
+          onOpenChange={setIsCreateModalOpen}
+        />
+      </>
     );
   }
 
@@ -113,8 +113,15 @@ export const WorkflowsList = () => {
   };
 
   const handleDelete = (id: string) => {
-    console.log("Delete workflow:", id);
-    // TODO: Implement delete functionality
+    setDeletingId(id);
+    deleteWorkflow.mutate(
+      { id },
+      {
+        onSettled: () => {
+          setDeletingId(null);
+        },
+      },
+    );
   };
 
   const handleDuplicate = (id: string) => {
@@ -134,6 +141,7 @@ export const WorkflowsList = () => {
       onDelete={handleDelete}
       onDuplicate={handleDuplicate}
       onRun={handleRun}
+      loadingWorkflows={deletingId ? [deletingId] : []}
     />
   );
 };
@@ -145,6 +153,7 @@ export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
     useHasActiveSubscription();
   const upgradeModal = useUpgradeModal();
   const { createNewWorkflow, isCreating } = useWorkflowCreation();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // Computed values
   const workflowCount = getWorkflowCount(workflows.data);
@@ -156,6 +165,15 @@ export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
     ? "Manage your workflows"
     : `Manage your workflows (${workflowCount}/${FREE_PLAN_LIMIT} free)`;
 
+  console.log("WorkflowsHeader debug:");
+  console.log("workflowCount:", workflowCount);
+  console.log("FREE_PLAN_LIMIT:", FREE_PLAN_LIMIT);
+  console.log(
+    "workflowCount < FREE_PLAN_LIMIT:",
+    workflowCount < FREE_PLAN_LIMIT,
+  );
+  console.log("canCreate result:", canCreate);
+
   // Event handlers
   const handleCreate = () => {
     if (isSubscriptionLoading) {
@@ -163,10 +181,14 @@ export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
     }
 
     if (hasActiveSubscription || canCreate) {
-      createNewWorkflow();
+      setIsCreateModalOpen(true);
     } else {
       upgradeModal.openUpgradeModal();
     }
+  };
+
+  const handleCreateSubmit = ({ name }: { name: string }) => {
+    createNewWorkflow({ name });
   };
 
   return (
@@ -178,6 +200,11 @@ export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
         newButtonLabel="New workflow"
         onNew={handleCreate}
         isCreating={isCreating}
+      />
+
+      <CreateWorkflowModal
+        open={isCreateModalOpen}
+        onOpenChange={setIsCreateModalOpen}
       />
 
       <UpgradeModal

@@ -44,7 +44,7 @@ export const SearchInput = () => {
             isFocused
               ? "ring-1 ring-primary/30 shadow-sm shadow-primary/10 border-primary bg-background/98"
               : "border-border bg-background hover:bg-muted/50"
-          } max-w-[200px] md:max-w-[400px]`}
+          } max-w-[200px] md:max-w-[500px]`}
         />
       </div>
     </div>

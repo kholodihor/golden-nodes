@@ -3,19 +3,21 @@ import { PageErrorView } from "./error-view";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
-  fallback?: React.ComponentType<{
+  fallbackRender?: (props: {
     error: Error;
     resetErrorBoundary: () => void;
-  }>;
+  }) => React.ReactElement;
 }
 
 export const ErrorBoundary = ({
   children,
-  fallback = ({ error, resetErrorBoundary }) => (
+  fallbackRender = ({ error, resetErrorBoundary }) => (
     <PageErrorView error={error} onRetry={resetErrorBoundary} />
   ),
 }: ErrorBoundaryProps) => {
   return (
-    <ReactErrorBoundary fallback={fallback}>{children}</ReactErrorBoundary>
+    <ReactErrorBoundary fallbackRender={fallbackRender}>
+      {children}
+    </ReactErrorBoundary>
   );
 };
