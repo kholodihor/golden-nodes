@@ -3,6 +3,7 @@ import { polarClient } from "@/lib/polar";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { headers } from "next/headers";
 import { cache } from "react";
+import superjson from "superjson";
 
 export const createTRPCContext = cache(async () => {
   /**
@@ -14,7 +15,7 @@ export const createTRPCContext = cache(async () => {
 // since it's not very descriptive.
 // For instance, the use of a t variable
 // is common in i18n libraries.
-const t = initTRPC.create();
+const t = initTRPC.create({ transformer: superjson });
 
 // Base router and procedure helpers
 export const createTRPCRouter = t.router;
