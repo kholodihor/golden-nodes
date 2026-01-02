@@ -1,5 +1,6 @@
 import { formatDistanceToNow } from "date-fns";
 import { MoreHorizontal, Play, Edit, Trash2, Copy } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,7 +28,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Workflow } from "@/components/workflows";
+import { Workflow } from "./types";
 
 interface WorkflowCardProps {
   workflow: Workflow;
@@ -119,15 +120,22 @@ export const WorkflowCard = ({
                 Ready to run
               </span>
             </div>
-            <Button
-              size="sm"
-              onClick={() => handleAction(() => onRun?.(workflow.id))}
-              disabled={isRunning}
-              className="gap-2"
-            >
-              <Play className="h-3 w-3" />
-              {isRunning ? "Running..." : "Run"}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Link href={`/workflows/${workflow.id}`}>
+                <Button variant="outline" size="sm" className="gap-2">
+                  Open
+                </Button>
+              </Link>
+              <Button
+                size="sm"
+                onClick={() => handleAction(() => onRun?.(workflow.id))}
+                disabled={isRunning}
+                className="gap-2"
+              >
+                <Play className="h-3 w-3" />
+                {isRunning ? "Running..." : "Run"}
+              </Button>
+            </div>
           </div>
 
           {/* Workflow preview/stats */}

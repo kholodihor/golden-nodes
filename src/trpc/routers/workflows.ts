@@ -102,21 +102,19 @@ export const workflowsRouter = createTRPCRouter({
   getById: protectedProcedure
     .input(getWorkflowSchema)
     .query(async ({ ctx, input }) => {
-      const workflow = await prisma.workflow.findFirst({
+      if (!ctx.auth.user.id) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "User not authenticated",
+        });
+      }
+
+      return prisma.workflow.findUniqueOrThrow({
         where: {
           id: input.id,
           userId: ctx.auth.user.id,
         },
       });
-
-      if (!workflow) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "Workflow not found",
-        });
-      }
-
-      return workflow;
     }),
 
   // UPDATE - Update a workflow

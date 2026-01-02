@@ -1,16 +1,29 @@
+import { HydrateClient } from "@/trpc/server";
+import { requireAuth } from "@/utils/auth";
+import { Suspense } from "react";
+import { PageLoadingView } from "@/components/ui/loading-view";
+import { ClientErrorBoundary } from "@/components/ui/client-error-boundary";
+import { WorkflowEditorClient } from "@/components/workflow/workflow-editor-client";
+
 interface PageProps {
   params: Promise<{
-    workflowId: string
-  }>
+    workflowId: string;
+  }>;
 }
 
 const page = async ({ params }: PageProps) => {
-  const { workflowId } = await params
-  return (
-    <div>
-      <p>workflow ID {workflowId}</p>
-    </div>
-  )
-}
+  await requireAuth();
+  const { workflowId } = await params;
 
-export default page
+  return (
+    <HydrateClient>
+      <ClientErrorBoundary>
+        <Suspense fallback={<PageLoadingView />}>
+          <WorkflowEditorClient workflowId={workflowId} />
+        </Suspense>
+      </ClientErrorBoundary>
+    </HydrateClient>
+  );
+};
+
+export default page;
