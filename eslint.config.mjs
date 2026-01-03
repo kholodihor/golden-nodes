@@ -27,6 +27,7 @@ const eslintConfig = defineConfig([
         },
       ],
       "import/no-unused-modules": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
       "no-unused-vars": "off", // Disable base rule to use TypeScript version
     },
   },

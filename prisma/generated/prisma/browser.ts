@@ -42,3 +42,13 @@ export type Verification = Prisma.VerificationModel
  * 
  */
 export type Workflow = Prisma.WorkflowModel
+/**
+ * Model Node
+ * 
+ */
+export type Node = Prisma.NodeModel
+/**
+ * Model Connection
+ * 
+ */
+export type Connection = Prisma.ConnectionModel

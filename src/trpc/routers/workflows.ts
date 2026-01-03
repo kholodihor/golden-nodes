@@ -45,7 +45,27 @@ export const workflowsRouter = createTRPCRouter({
         },
       });
 
-      return workflow;
+      // Create initial trigger node
+      const triggerNode = await prisma.node.create({
+        data: {
+          workflowId: workflow.id,
+          name: "Webhook Trigger",
+          type: "START",
+          data: {
+            label: "Webhook Trigger",
+            description: "Start workflow when webhook is called",
+          },
+          position: {
+            x: 250,
+            y: 25,
+          },
+        },
+      });
+
+      return {
+        ...workflow,
+        initialNode: triggerNode,
+      };
     }),
 
   // READ - Get all workflows for the authenticated user

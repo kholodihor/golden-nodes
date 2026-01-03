@@ -78,8 +78,56 @@ model Workflow {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  nodes Node[]
+  connections Connection[]
+
   userId String
   user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("workflow")
+}
+
+enum NodeType {
+  ACTION
+  CONDITION
+  START
+  END
+}
+
+model Node {
+  id        String   @id @default(cuid())
+  name      String
+  type      NodeType
+  data      Json @default("{}")
+  position  Json
+  workflowId String
+  workflow  Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  outputConnections Connection[] @relation("SourceNodeToConnections")
+  inputConnections Connection[] @relation("TargetNodeToConnections")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("node")
+}
+
+model Connection {
+  id           String   @id @default(cuid())
+  sourceNodeId String
+  targetNodeId String
+  sourceNode   Node     @relation("SourceNodeToConnections", fields: [sourceNodeId], references: [id], onDelete: Cascade)
+  targetNode   Node     @relation("TargetNodeToConnections", fields: [targetNodeId], references: [id], onDelete: Cascade)
+  sourceHandle String
+  targetHandle String
+  workflowId   String
+  workflow     Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  sourceOutput String @default("main")
+  targetInput  String @default("main")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("connection")
 }
