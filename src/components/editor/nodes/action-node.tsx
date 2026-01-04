@@ -5,21 +5,24 @@ import { Handle, Position, NodeProps } from "@xyflow/react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Play, Settings, Trash2 } from "lucide-react";
+import { Settings, Trash2 } from "lucide-react";
 import { useDeleteNode } from "@/hooks/use-nodes";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
+import NodeEditor from "@/components/editor/node-editor";
 
-export default React.memo(function ActionNode({
-  data,
-  selected,
-  id,
-}: NodeProps) {
+export default function ActionNode({ data, selected, id }: NodeProps) {
   const deleteNode = useDeleteNode();
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
+  const [showEditor, setShowEditor] = React.useState(false);
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
     setShowConfirmDialog(true);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowEditor(true);
   };
 
   const handleConfirmDelete = () => {
@@ -40,18 +43,20 @@ export default React.memo(function ActionNode({
           <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">
             Action
           </Badge>
-          <div className="flex gap-1">
-            <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-              <Play className="h-3 w-3" />
-            </Button>
-            <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleEdit}
+              className="h-6 w-6 p-0 hover:bg-blue-100"
+            >
               <Settings className="h-3 w-3" />
             </Button>
             <Button
-              size="sm"
               variant="ghost"
-              className="h-6 w-6 p-0 hover:text-red-500"
+              size="sm"
               onClick={handleDelete}
+              className="h-6 w-6 p-0 hover:bg-red-100"
               disabled={deleteNode.isPending}
             >
               <Trash2 className="h-3 w-3" />
@@ -86,6 +91,13 @@ export default React.memo(function ActionNode({
         confirmText="Delete"
         cancelText="Cancel"
       />
+      <NodeEditor
+        isOpen={showEditor}
+        onClose={() => setShowEditor(false)}
+        nodeId={id as string}
+        nodeData={data as any}
+        nodeType="action"
+      />
     </Card>
   );
-});
+}

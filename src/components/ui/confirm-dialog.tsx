@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle, X } from "lucide-react";
@@ -24,13 +25,31 @@ export default function ConfirmDialog({
   confirmText = "Delete",
   cancelText = "Cancel",
 }: ConfirmDialogProps) {
+  // Prevent body scroll when dialog is open
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = "";
+      };
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 min-w-[400px] bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
-      <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4 transform transition-all duration-200 scale-100 animate-in zoom-in-95">
+  // Use portal to render dialog at document body level
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/80 backdrop-blur-md"
+        onClick={onCancel}
+      />
+
+      {/* Dialog Content */}
+      <div className="relative z-10 w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl border border-gray-200/50 transform transition-all duration-300 ease-out">
         {/* Header with close button */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between p-6 pb-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-red-100 rounded-full">
               <AlertTriangle className="h-5 w-5 text-red-600" />
@@ -48,32 +67,35 @@ export default function ConfirmDialog({
         </div>
 
         {/* Alert content */}
-        <Alert variant="destructive" className="mb-6 border-red-200 bg-red-50">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle className="text-red-800">Warning</AlertTitle>
-          <AlertDescription className="text-red-700">
-            {description}
-          </AlertDescription>
-        </Alert>
+        <div className="px-6 pb-6">
+          <Alert variant="destructive" className="border-red-200 bg-red-50">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle className="text-red-800">Warning</AlertTitle>
+            <AlertDescription className="text-red-700">
+              {description}
+            </AlertDescription>
+          </Alert>
 
-        {/* Action buttons */}
-        <div className="flex gap-3 justify-end">
-          <Button
-            variant="outline"
-            onClick={onCancel}
-            className="border-gray-200 hover:bg-gray-50"
-          >
-            {cancelText}
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={onConfirm}
-            className="bg-red-600 hover:bg-red-700 text-white"
-          >
-            {confirmText}
-          </Button>
+          {/* Action buttons */}
+          <div className="flex gap-3 justify-end mt-6">
+            <Button
+              variant="outline"
+              onClick={onCancel}
+              className="border-gray-200 hover:bg-gray-50"
+            >
+              {cancelText}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={onConfirm}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {confirmText}
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

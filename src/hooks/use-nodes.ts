@@ -33,6 +33,9 @@ export function useUpdateNode() {
   return useMutation(
     trpc.nodes.update.mutationOptions({
       onSuccess: () => {
+        console.log(
+          "useUpdateNode: onSuccess triggered, dispatching node-changed event",
+        );
         queryClient.invalidateQueries({
           predicate: query => {
             const key = query.queryKey[0] as string;

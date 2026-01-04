@@ -7,6 +7,7 @@ import { EditWorkflowModal } from "@/components/workflows/edit-workflow-modal";
 import EntityContainer from "@/components/entities/entity-container";
 import Editor from "@/components/editor/editor";
 import NodePalette from "@/components/editor/node-palette";
+import WorkflowProvider from "@/components/editor/workflow-provider";
 import { AlertCircle, RefreshCw, Home, Edit, Save } from "lucide-react";
 
 interface WorkflowEditorClientProps {
@@ -98,12 +99,14 @@ export function WorkflowEditorClient({
         isUpdating={updateWorkflow.isPending}
       />
       <div className="mt-6 flex gap-4">
-        <div className="flex-1">
-          <Editor workflowId={workflowId} />
-        </div>
-        <div className="w-64">
-          <NodePalette workflowId={workflowId} />
-        </div>
+        <WorkflowProvider>
+          <div className="flex-1">
+            <Editor workflowId={workflowId} />
+          </div>
+          <div className="w-64">
+            <NodePalette workflowId={workflowId} />
+          </div>
+        </WorkflowProvider>
       </div>
     </EntityContainer>
   );

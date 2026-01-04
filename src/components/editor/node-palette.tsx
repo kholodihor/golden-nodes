@@ -84,22 +84,24 @@ export default function NodePalette({ workflowId }: NodePaletteProps) {
               disabled={createNode.isPending}
             >
               <div className="flex items-center gap-3 w-full">
-                <div className={`p-1.5 rounded ${nodeType.color}`}>
+                <div
+                  className={`p-1.5 rounded ${nodeType.color} flex-shrink-0`}
+                >
                   <Icon className="h-3 w-3 text-white" />
                 </div>
-                <div className="flex-1 text-left">
+                <div className="flex-1 text-left min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium">
+                    <span className="text-xs font-medium truncate">
                       {nodeType.label}
                     </span>
                     <Badge
                       variant="secondary"
-                      className="text-[10px] px-1 py-0"
+                      className="text-[10px] px-1 py-0 flex-shrink-0"
                     >
                       {nodeType.type}
                     </Badge>
                   </div>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                  <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">
                     {nodeType.description}
                   </p>
                 </div>

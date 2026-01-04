@@ -73,10 +73,11 @@ export default function Editor({ workflowId }: EditorProps) {
   const updateNode = useUpdateNode();
 
   // Convert database data to React Flow format
-  const nodes = useMemo(
-    () => workflowData?.nodes?.map(dbNodeToFlowNode) || [],
-    [workflowData?.nodes],
-  );
+  const nodes = useMemo(() => {
+    const convertedNodes = workflowData?.nodes?.map(dbNodeToFlowNode) || [];
+    console.log("Editor: Nodes updated from workflow data:", convertedNodes);
+    return convertedNodes;
+  }, [workflowData?.nodes]);
   const edges = useMemo(
     () => workflowData?.connections?.map(dbConnectionToFlowEdge) || [],
     [workflowData?.connections],
@@ -95,7 +96,7 @@ export default function Editor({ workflowId }: EditorProps) {
       // Use setTimeout to avoid synchronous setState
       setTimeout(() => setIsInitialLoad(false), 0);
     } else {
-      // For subsequent updates, add/remove nodes without resetting viewport
+      // For subsequent updates, handle node additions, removals, and updates
       const currentIds = new Set(flowNodes.map(n => n.id));
       const newIds = new Set(nodes.map(n => n.id));
 
@@ -103,12 +104,42 @@ export default function Editor({ workflowId }: EditorProps) {
       const nodesToAdd = nodes.filter(n => !currentIds.has(n.id));
       const nodesToRemove = flowNodes.filter(n => !newIds.has(n.id));
 
-      // Update nodes by adding/removing individual nodes
-      if (nodesToAdd.length > 0 || nodesToRemove.length > 0) {
+      // Check if any existing nodes have updated data
+      const nodesToUpdate = nodes.filter(newNode => {
+        const currentNode = flowNodes.find(n => n.id === newNode.id);
+        if (!currentNode) return false;
+
+        // Compare node data to see if it changed
+        const currentData = JSON.stringify(currentNode.data);
+        const newData = JSON.stringify(newNode.data);
+        return currentData !== newData;
+      });
+
+      // Update nodes if there are any changes
+      if (
+        nodesToAdd.length > 0 ||
+        nodesToRemove.length > 0 ||
+        nodesToUpdate.length > 0
+      ) {
+        console.log("Editor: Updating nodes:", {
+          nodesToAdd,
+          nodesToRemove,
+          nodesToUpdate,
+        });
+
         const updatedNodes = [
           ...flowNodes.filter(n => !nodesToRemove.find(r => r.id === n.id)),
           ...nodesToAdd,
         ];
+
+        // Update existing nodes with new data
+        nodesToUpdate.forEach(updatedNode => {
+          const index = updatedNodes.findIndex(n => n.id === updatedNode.id);
+          if (index !== -1) {
+            updatedNodes[index] = updatedNode;
+          }
+        });
+
         setFlowNodes(updatedNodes);
       }
 
@@ -149,6 +180,7 @@ export default function Editor({ workflowId }: EditorProps) {
   // Listen for node creation events to trigger refetch
   useEffect(() => {
     const handleNodeChange = () => {
+      console.log("Editor: node-changed event received, refetching...");
       refetch();
     };
 
