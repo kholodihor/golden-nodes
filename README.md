@@ -9,36 +9,48 @@ Golden Nodes is a next-generation workflow automation tool that combines the pow
 ## 🛠️ Technology Stack
 
 ### Frontend Framework
+
 - **Next.js 16** - React framework with App Router for optimal performance
 - **React 19** - Latest React with concurrent features
 - **TypeScript** - Type-safe development
 
 ### UI & Design
+
 - **Tailwind CSS 4** - Utility-first CSS framework
 - **Radix UI** - Accessible component primitives
 - **Lucide React** - Beautiful icon library
-- **Framer Motion** - Smooth animations and transitions
 - **React Hook Form** - Performant form handling
 - **Zod** - Schema validation
+- **React Flow** - Visual workflow editor with drag-and-drop nodes
+
+### State Management
+
+- **Jotai** - Atomic state management for optimal performance
+- **React Query** - Server state management and caching
 
 ### Backend & API
+
 - **tRPC** - End-to-end type-safe APIs
 - **Prisma** - Modern database toolkit with PostgreSQL
 - **Better Auth** - Authentication and session management
 - **Inngest** - Background job processing and workflow orchestration
 
 ### AI & Automation
+
 - **Google AI SDK** - AI-powered workflow suggestions and optimizations
 - **AI SDK** - Framework for AI integration
 
 ### Database & Storage
+
 - **PostgreSQL** - Primary database
 - **Prisma Client** - Type-safe database access
 
 ### Subscription & Payments
+
 - **Polar** - Subscription management and payment processing
 
 ### Development Tools
+
 - **ESLint** - Code linting and quality
 - **Prettier** - Code formatting (80-char line limit)
 - **VS Code** - Recommended IDE with custom settings
@@ -46,19 +58,28 @@ Golden Nodes is a next-generation workflow automation tool that combines the pow
 ## 🌟 Key Features
 
 ### Workflow Automation
-- **Visual Workflow Designer** - Drag-and-drop node-based editor
+
+- **Visual Workflow Designer** - Drag-and-drop node-based editor with React Flow
+- **Advanced Node Editor** - Comprehensive node configuration with modal interface
+- **Template Variables** - Dynamic data binding between workflow nodes
+- **HTTP Request Nodes** - Full REST API support with all HTTP methods
+- **Webhook Triggers** - Real-time workflow activation with custom endpoints
+- **Node Status Indicators** - Visual feedback for node execution states
 - **100+ Integrations** - Connect popular services and APIs
 - **Conditional Logic** - Smart branching and decision-making
 - **Scheduled Execution** - Time-based and event triggers
 - **Error Handling** - Robust error recovery and retry logic
+- **Optimized Performance** - Jotai-based state management for instant updates
 
 ### AI-Powered Features
+
 - **Workflow Suggestions** - AI recommends optimal automation patterns
 - **Natural Language Processing** - Create workflows from descriptions
 - **Smart Debugging** - AI identifies and fixes workflow issues
 - **Performance Optimization** - Automatic workflow efficiency improvements
 
 ### Enterprise Features
+
 - **Team Collaboration** - Shared workflows and permissions
 - **Audit Logs** - Complete workflow execution history
 - **Custom Nodes** - Build and share custom integrations
@@ -91,6 +112,7 @@ Golden Nodes is a next-generation workflow automation tool that combines the pow
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - PostgreSQL database
 - Polar account (for subscriptions)
@@ -99,6 +121,7 @@ Golden Nodes is a next-generation workflow automation tool that combines the pow
 ### Installation
 
 1. **Clone and setup**
+
    ```bash
    git clone https://github.com/kholodihor/golden-nodes.git
    cd golden-nodes
@@ -106,11 +129,13 @@ Golden Nodes is a next-generation workflow automation tool that combines the pow
    ```
 
 2. **Environment configuration**
+
    ```bash
    cp .env.example .env
    ```
-   
+
    Configure essential variables:
+
    ```env
    DATABASE_URL="postgresql://..."
    AUTH_SECRET="your-secret-key"
@@ -119,6 +144,7 @@ Golden Nodes is a next-generation workflow automation tool that combines the pow
    ```
 
 3. **Database setup**
+
    ```bash
    npx prisma migrate dev
    npx prisma generate
@@ -140,17 +166,28 @@ src/
 │   ├── integrations/     # Service connections
 │   └── api/             # API routes
 ├── components/            # Reusable UI components
-│   ├── ui/              # Base UI components
+│   ├── ui/              # Base UI components (Modal, ConfirmDialog)
+│   ├── editor/          # Workflow editor components
+│   │   ├── nodes/       # Node components (Trigger, Action, Custom)
+│   │   ├── node-editor.tsx    # Advanced node configuration modal
+│   │   ├── node-palette.tsx   # Node selection sidebar
+│   │   └── workflow-provider.tsx # Jotai state provider
 │   ├── workflow/        # Workflow-specific components
 │   └── integrations/   # Integration UI
 ├── lib/                  # Core libraries
 │   ├── auth/            # Authentication logic
 │   ├── polar/           # Subscription management
 │   └── ai/              # AI services
+├── store/               # Jotai state management
+│   └── workflow-store.ts # Centralized workflow state
+├── types/               # Centralized TypeScript definitions
+│   └── index.ts         # All workflow and node types
 ├── trpc/                 # tRPC procedures
 │   ├── routers/         # API routers
 │   └── procedures/      # Individual procedures
 ├── hooks/               # Custom React hooks
+│   ├── use-nodes.ts     # Node CRUD operations
+│   └── use-debounce.ts  # Optimized debouncing
 ├── inngest/             # Background jobs
 └── utils/               # Helper functions
 ```
@@ -158,6 +195,7 @@ src/
 ## 🔧 Development
 
 ### Available Scripts
+
 ```bash
 npm run dev          # Start development server
 npm run build        # Build for production
@@ -169,12 +207,14 @@ npm run dev:all      # Start all dev services
 ```
 
 ### Code Quality
+
 - **TypeScript**: Strict mode enabled
 - **ESLint**: Next.js + TypeScript rules
 - **Prettier**: 80-character line limit
 - **Husky**: Pre-commit hooks
 
 ### Database Operations
+
 ```bash
 npx prisma generate    # Generate client
 npx prisma migrate dev # Run migrations
@@ -192,12 +232,14 @@ npx prisma studio      # Visual database browser
 ## 💳 Subscription Model
 
 ### Free Tier
+
 - Up to 5 active workflows
 - 100 executions per month
 - Basic integrations
 - Community support
 
 ### Premium Tier
+
 - Unlimited workflows
 - 10,000 executions per month
 - All integrations
@@ -208,24 +250,28 @@ npx prisma studio      # Visual database browser
 ## 🤖 AI Integration
 
 ### Workflow Intelligence
+
 - **Smart Suggestions**: AI recommends optimal node configurations
 - **Natural Language**: Create workflows from text descriptions
 - **Error Detection**: Proactive issue identification and resolution
 - **Performance Optimization**: Automatic workflow efficiency improvements
 
 ### AI Models
+
 - **Google Gemini**: Advanced reasoning and analysis
 - **Custom Models**: Specialized automation intelligence
 
 ## 🚀 Deployment
 
 ### Production Setup
+
 1. **Environment Variables**: Configure all production secrets
 2. **Database**: Set up managed PostgreSQL
 3. **Background Jobs**: Configure Inngest infrastructure
 4. **Monitoring**: Set up logging and error tracking
 
 ### Recommended Platforms
+
 - **Vercel**: Frontend and API hosting
 - **Railway/PlanetScale**: PostgreSQL database
 - **Inngest Cloud**: Background job processing
@@ -234,18 +280,29 @@ npx prisma studio      # Visual database browser
 ## 🎯 Roadmap
 
 ### Phase 1: Core Platform
+
 - [x] Basic workflow designer
 - [x] Authentication system
 - [x] Subscription management
+- [x] Visual node editor with React Flow
+- [x] Advanced node configuration modal
+- [x] Template variables system
+- [x] HTTP request nodes with full REST support
+- [x] Webhook triggers with custom endpoints
+- [x] Node status indicators
+- [x] Optimized state management with Jotai
+- [x] Centralized TypeScript definitions
 - [ ] 50+ core integrations
 
 ### Phase 2: AI Features
+
 - [ ] Natural language workflow creation
 - [ ] Smart debugging assistant
 - [ ] Performance optimization
 - [ ] Predictive analytics
 
 ### Phase 3: Enterprise
+
 - [ ] Team collaboration
 - [ ] Advanced permissions
 - [ ] Custom branding
@@ -256,6 +313,7 @@ npx prisma studio      # Visual database browser
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 ### Development Workflow
+
 1. Fork the repository
 2. Create a feature branch
 3. Implement your changes
