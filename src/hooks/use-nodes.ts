@@ -1,15 +1,27 @@
 import { useTRPC } from "@/trpc/client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSetAtom } from "jotai";
+import { workflowDataAtom } from "@/store/workflow-store";
 
 // Nodes
 export function useCreateNode() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const setWorkflowData = useSetAtom(workflowDataAtom);
 
   return useMutation(
     trpc.nodes.create.mutationOptions({
-      onSuccess: () => {
-        // Invalidate workflow with nodes cache
+      onSuccess: newNode => {
+        // Optimistically update Jotai store instead of invalidating
+        setWorkflowData(current => {
+          if (!current) return current;
+          return {
+            ...current,
+            nodes: [...(current.nodes || []), newNode],
+          };
+        });
+
+        // Invalidate queries in background (non-blocking)
         queryClient.invalidateQueries({
           predicate: query => {
             const key = query.queryKey[0] as string;
@@ -19,8 +31,6 @@ export function useCreateNode() {
             );
           },
         });
-        // Trigger custom event for immediate UI update
-        window.dispatchEvent(new CustomEvent("node-changed"));
       },
     }),
   );
@@ -29,13 +39,23 @@ export function useCreateNode() {
 export function useUpdateNode() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const setWorkflowData = useSetAtom(workflowDataAtom);
 
   return useMutation(
     trpc.nodes.update.mutationOptions({
-      onSuccess: () => {
-        console.log(
-          "useUpdateNode: onSuccess triggered, dispatching node-changed event",
-        );
+      onSuccess: updatedNode => {
+        // Optimistically update Jotai store
+        setWorkflowData((current: any) => {
+          if (!current) return current;
+          return {
+            ...current,
+            nodes:
+              current.nodes?.map((node: any) =>
+                node.id === updatedNode.id ? updatedNode : node,
+              ) || [],
+          };
+        });
+
         queryClient.invalidateQueries({
           predicate: query => {
             const key = query.queryKey[0] as string;
@@ -45,8 +65,6 @@ export function useUpdateNode() {
             );
           },
         });
-        // Trigger custom event for immediate UI update
-        window.dispatchEvent(new CustomEvent("node-changed"));
       },
     }),
   );
@@ -55,10 +73,22 @@ export function useUpdateNode() {
 export function useDeleteNode() {
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+  const setWorkflowData = useSetAtom(workflowDataAtom);
 
   return useMutation(
     trpc.nodes.delete.mutationOptions({
-      onSuccess: () => {
+      onSuccess: (_, variables) => {
+        // Optimistically update Jotai store
+        setWorkflowData((current: any) => {
+          if (!current) return current;
+          return {
+            ...current,
+            nodes:
+              current.nodes?.filter((node: any) => node.id !== variables.id) ||
+              [],
+          };
+        });
+
         queryClient.invalidateQueries({
           predicate: query => {
             const key = query.queryKey[0] as string;

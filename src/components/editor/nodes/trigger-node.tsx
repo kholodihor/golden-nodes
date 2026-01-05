@@ -5,21 +5,39 @@ import { Handle, Position, NodeProps } from "@xyflow/react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Settings, Trash2 } from "lucide-react";
+import {
+  Settings,
+  Trash2,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+} from "lucide-react";
 import { useDeleteNode } from "@/hooks/use-nodes";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 import NodeEditor from "@/components/editor/node-editor";
+import { ReactFlowNodeData } from "@/types";
 
-interface TriggerNodeData {
-  label: string;
-  description: string;
-}
+type TriggerNodeData = ReactFlowNodeData;
 
 export default function TriggerNode({ data, selected, id }: NodeProps) {
   const nodeData = data as unknown as TriggerNodeData;
   const deleteNode = useDeleteNode();
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
   const [showEditor, setShowEditor] = React.useState(false);
+
+  // Get status indicator
+  const getStatusIndicator = (status?: string) => {
+    switch (status) {
+      case "running":
+        return <Clock className="h-3 w-3 text-blue-500 animate-spin" />;
+      case "success":
+        return <CheckCircle className="h-3 w-3 text-green-500" />;
+      case "error":
+        return <AlertCircle className="h-3 w-3 text-red-500" />;
+      default:
+        return null;
+    }
+  };
 
   // Debug: Log when node data changes
   React.useEffect(() => {
@@ -51,9 +69,15 @@ export default function TriggerNode({ data, selected, id }: NodeProps) {
     >
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <Badge variant="default" className="bg-green-500 hover:bg-green-600">
-            Trigger
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge
+              variant="default"
+              className="bg-green-500 hover:bg-green-600"
+            >
+              Trigger
+            </Badge>
+            {getStatusIndicator(nodeData.status)}
+          </div>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"

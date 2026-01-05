@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo, useState, useEffect } from "react";
+import React, { useCallback } from "react";
 import {
   ReactFlow,
   MiniMap,
@@ -10,7 +10,6 @@ import {
   useNodesState,
   useEdgesState,
   Connection,
-  Edge,
   Node,
   NodeTypes,
 } from "@xyflow/react";
@@ -18,11 +17,9 @@ import {
 import CustomNode from "./nodes/custom-node";
 import TriggerNode from "./nodes/trigger-node";
 import ActionNode from "./nodes/action-node";
-import {
-  useWorkflowWithNodes,
-  useCreateConnection,
-  useUpdateNode,
-} from "@/hooks/use-nodes";
+import { useCreateConnection, useUpdateNode } from "@/hooks/use-nodes";
+import { useAtom } from "jotai";
+import { convertedNodesAtom, convertedEdgesAtom } from "@/store/workflow-store";
 
 const nodeTypes: NodeTypes = {
   custom: CustomNode,
@@ -30,167 +27,20 @@ const nodeTypes: NodeTypes = {
   action: ActionNode,
 };
 
-// Helper to convert database node to React Flow node
-const dbNodeToFlowNode = (dbNode: any): Node => {
-  const nodeType =
-    dbNode.type === "START"
-      ? "trigger"
-      : dbNode.type === "ACTION"
-        ? "action"
-        : "custom";
-
-  return {
-    id: dbNode.id,
-    type: nodeType,
-    position: dbNode.position as { x: number; y: number },
-    data: dbNode.data as { label: string; description: string },
-  };
-};
-
-// Helper to convert database connection to React Flow edge
-const dbConnectionToFlowEdge = (dbConnection: any): Edge => {
-  return {
-    id: dbConnection.id,
-    source: dbConnection.sourceNodeId,
-    target: dbConnection.targetNodeId,
-    sourceHandle: dbConnection.sourceHandle,
-    targetHandle: dbConnection.targetHandle,
-    animated: true,
-  };
-};
-
 interface EditorProps {
   workflowId?: string;
 }
 
 export default function Editor({ workflowId }: EditorProps) {
-  const {
-    data: workflowData,
-    isLoading,
-    refetch,
-  } = useWorkflowWithNodes(workflowId || "");
-  const createConnection = useCreateConnection();
-  const updateNode = useUpdateNode();
-
-  // Convert database data to React Flow format
-  const nodes = useMemo(() => {
-    const convertedNodes = workflowData?.nodes?.map(dbNodeToFlowNode) || [];
-    console.log("Editor: Nodes updated from workflow data:", convertedNodes);
-    return convertedNodes;
-  }, [workflowData?.nodes]);
-  const edges = useMemo(
-    () => workflowData?.connections?.map(dbConnectionToFlowEdge) || [],
-    [workflowData?.connections],
-  );
+  // Use Jotai atoms directly - no more complex state management
+  const [nodes] = useAtom(convertedNodesAtom);
+  const [edges] = useAtom(convertedEdgesAtom);
 
   const [flowNodes, setFlowNodes, onNodesChange] = useNodesState(nodes);
   const [flowEdges, setFlowEdges, onEdgesChange] = useEdgesState(edges);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  // Update React Flow state when database data changes (but preserve viewport)
-  useEffect(() => {
-    if (isInitialLoad) {
-      // Only set nodes/edges on initial load
-      setFlowNodes(nodes);
-      setFlowEdges(edges);
-      // Use setTimeout to avoid synchronous setState
-      setTimeout(() => setIsInitialLoad(false), 0);
-    } else {
-      // For subsequent updates, handle node additions, removals, and updates
-      const currentIds = new Set(flowNodes.map(n => n.id));
-      const newIds = new Set(nodes.map(n => n.id));
-
-      // Find nodes to add and remove
-      const nodesToAdd = nodes.filter(n => !currentIds.has(n.id));
-      const nodesToRemove = flowNodes.filter(n => !newIds.has(n.id));
-
-      // Check if any existing nodes have updated data
-      const nodesToUpdate = nodes.filter(newNode => {
-        const currentNode = flowNodes.find(n => n.id === newNode.id);
-        if (!currentNode) return false;
-
-        // Compare node data to see if it changed
-        const currentData = JSON.stringify(currentNode.data);
-        const newData = JSON.stringify(newNode.data);
-        return currentData !== newData;
-      });
-
-      // Update nodes if there are any changes
-      if (
-        nodesToAdd.length > 0 ||
-        nodesToRemove.length > 0 ||
-        nodesToUpdate.length > 0
-      ) {
-        console.log("Editor: Updating nodes:", {
-          nodesToAdd,
-          nodesToRemove,
-          nodesToUpdate,
-        });
-
-        const updatedNodes = [
-          ...flowNodes.filter(n => !nodesToRemove.find(r => r.id === n.id)),
-          ...nodesToAdd,
-        ];
-
-        // Update existing nodes with new data
-        nodesToUpdate.forEach(updatedNode => {
-          const index = updatedNodes.findIndex(n => n.id === updatedNode.id);
-          if (index !== -1) {
-            updatedNodes[index] = updatedNode;
-          }
-        });
-
-        setFlowNodes(updatedNodes);
-      }
-
-      // For edges, be more careful - only update database edges, preserve user-created ones
-      const dbEdgeIds = new Set(edges.map(e => e.id));
-      const currentDbEdges = flowEdges.filter(e => dbEdgeIds.has(e.id));
-      const userEdges = flowEdges.filter(e => !dbEdgeIds.has(e.id));
-
-      // Update only database edges
-      const edgesToAdd = edges.filter(
-        e => !currentDbEdges.find(r => r.id === e.id),
-      );
-      const edgesToRemove = currentDbEdges.filter(
-        e => !edges.find(r => r.id === e.id),
-      );
-
-      if (edgesToAdd.length > 0 || edgesToRemove.length > 0) {
-        const updatedEdges = [
-          ...userEdges, // Keep user-created edges (including temporary ones)
-          ...currentDbEdges.filter(
-            e => !edgesToRemove.find(r => r.id === e.id),
-          ),
-          ...edgesToAdd,
-        ];
-        setFlowEdges(updatedEdges);
-      }
-    }
-  }, [
-    nodes,
-    edges,
-    flowNodes,
-    flowEdges,
-    setFlowNodes,
-    setFlowEdges,
-    isInitialLoad,
-  ]);
-
-  // Listen for node creation events to trigger refetch
-  useEffect(() => {
-    const handleNodeChange = () => {
-      console.log("Editor: node-changed event received, refetching...");
-      refetch();
-    };
-
-    // Custom event listener for node changes
-    window.addEventListener("node-changed", handleNodeChange);
-
-    return () => {
-      window.removeEventListener("node-changed", handleNodeChange);
-    };
-  }, [refetch]);
+  const createConnection = useCreateConnection();
+  const updateNode = useUpdateNode();
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -217,7 +67,7 @@ export default function Editor({ workflowId }: EditorProps) {
     [updateNode],
   );
 
-  if (isLoading) {
+  if (!flowNodes.length) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
         <div className="text-muted-foreground">Loading workflow...</div>

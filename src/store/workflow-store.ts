@@ -1,11 +1,12 @@
 import { atom } from "jotai";
 import { Node, Edge } from "@xyflow/react";
+import { WorkflowData, WorkflowNode, WorkflowConnection } from "@/types";
 
 // Workflow ID atom
 export const workflowIdAtom = atom<string | null>(null);
 
-// Raw workflow data from database
-export const workflowDataAtom = atom<any>(null);
+// Raw workflow data from database with proper typing
+export const workflowDataAtom = atom<WorkflowData | null>(null);
 
 // React Flow nodes atom
 export const flowNodesAtom = atom<Node[]>([]);
