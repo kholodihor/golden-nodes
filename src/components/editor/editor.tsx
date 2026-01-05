@@ -17,9 +17,18 @@ import {
 import CustomNode from "./nodes/custom-node";
 import TriggerNode from "./nodes/trigger-node";
 import ActionNode from "./nodes/action-node";
-import { useCreateConnection, useUpdateNode } from "@/hooks/use-nodes";
+import {
+  useCreateConnection,
+  useUpdateNode,
+  useWorkflowWithNodes,
+} from "@/hooks/use-nodes";
 import { useAtom } from "jotai";
-import { convertedNodesAtom, convertedEdgesAtom } from "@/store/workflow-store";
+import {
+  workflowDataAtom,
+  convertedNodesAtom,
+  convertedEdgesAtom,
+  workflowIdAtom,
+} from "@/store/workflow-store";
 
 const nodeTypes: NodeTypes = {
   custom: CustomNode,
@@ -32,10 +41,36 @@ interface EditorProps {
 }
 
 export default function Editor({ workflowId }: EditorProps) {
-  // Use Jotai atoms directly - no more complex state management
+  // Fetch workflow data
+  const {
+    data: workflowData,
+    isLoading,
+    refetch,
+  } = useWorkflowWithNodes(workflowId || "");
+
+  // Update Jotai store with fetched data
+  const [, setWorkflowData] = useAtom(workflowDataAtom);
+  const [, setWorkflowId] = useAtom(workflowIdAtom);
+
+  // Sync fetched data with Jotai store
+  React.useEffect(() => {
+    console.log("Editor: workflowData fetched:", workflowData);
+    if (workflowData) {
+      setWorkflowData(workflowData);
+    }
+    if (workflowId) {
+      setWorkflowId(workflowId);
+    }
+  }, [workflowData, workflowId, setWorkflowData, setWorkflowId]);
+
+  // Use Jotai atoms for React Flow data
   const [nodes] = useAtom(convertedNodesAtom);
   const [edges] = useAtom(convertedEdgesAtom);
 
+  console.log("Editor: Jotai nodes:", nodes);
+  console.log("Editor: Jotai edges:", edges);
+
+  // Initialize React Flow state with the actual data from Jotai
   const [flowNodes, setFlowNodes, onNodesChange] = useNodesState(nodes);
   const [flowEdges, setFlowEdges, onEdgesChange] = useEdgesState(edges);
 
@@ -67,7 +102,7 @@ export default function Editor({ workflowId }: EditorProps) {
     [updateNode],
   );
 
-  if (!flowNodes.length) {
+  if (isLoading) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
         <div className="text-muted-foreground">Loading workflow...</div>

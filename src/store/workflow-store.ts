@@ -20,9 +20,14 @@ export const isLoadingAtom = atom<boolean>(true);
 // Derived atom for converting database nodes to React Flow format
 export const convertedNodesAtom = atom(get => {
   const workflowData = get(workflowDataAtom);
-  if (!workflowData?.nodes) return [];
+  console.log("Store: workflowData in convertedNodesAtom:", workflowData);
 
-  return workflowData.nodes.map((dbNode: any) => {
+  if (!workflowData?.nodes) {
+    console.log("Store: No nodes in workflowData, returning empty array");
+    return [];
+  }
+
+  const convertedNodes = workflowData.nodes.map((dbNode: any) => {
     const nodeType =
       dbNode.type === "START"
         ? "trigger"
@@ -37,6 +42,9 @@ export const convertedNodesAtom = atom(get => {
       data: dbNode.data as { label: string; description: string },
     };
   });
+
+  console.log("Store: Converted nodes:", convertedNodes);
+  return convertedNodes;
 });
 
 // Derived atom for converting database connections to React Flow format
