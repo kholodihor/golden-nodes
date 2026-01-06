@@ -23,8 +23,8 @@ import { CreateWorkflowModal } from "./workflows/create-workflow-modal";
 export interface Workflow {
   id: string;
   name: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   userId: string;
 }
 
@@ -78,7 +78,6 @@ export const WorkflowsList = () => {
     hasActiveSubscription || false,
     workflowCount,
   );
-  const search = workflows.data.pagination.search;
 
   // Show empty state if no workflows
   if (workflowCount === 0) {
@@ -97,7 +96,7 @@ export const WorkflowsList = () => {
         <WorkflowsEmpty
           onCreate={handleCreate}
           disabled={isSubscriptionLoading || !canCreate}
-          search={search}
+          search=""
         />
         <CreateWorkflowModal
           open={isCreateModalOpen}
@@ -147,48 +146,19 @@ export const WorkflowsList = () => {
 };
 
 export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
-  // Hooks
-  const workflows = useSuspenseWorkflows();
   const { hasActiveSubscription, isLoading: isSubscriptionLoading } =
     useHasActiveSubscription();
   const upgradeModal = useUpgradeModal();
-  const { createNewWorkflow, isCreating } = useWorkflowCreation();
+  const { isCreating } = useWorkflowCreation();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  // Computed values
-  const workflowCount = getWorkflowCount(workflows.data);
-  const canCreate = canCreateWorkflow(
-    hasActiveSubscription || false,
-    workflowCount,
-  );
-  const description = hasActiveSubscription
-    ? "Manage your workflows"
-    : `Manage your workflows (${workflowCount}/${FREE_PLAN_LIMIT} free)`;
+  const description = "Manage your workflows";
 
-  console.log("WorkflowsHeader debug:");
-  console.log("workflowCount:", workflowCount);
-  console.log("FREE_PLAN_LIMIT:", FREE_PLAN_LIMIT);
-  console.log(
-    "workflowCount < FREE_PLAN_LIMIT:",
-    workflowCount < FREE_PLAN_LIMIT,
-  );
-  console.log("canCreate result:", canCreate);
-
-  // Event handlers
   const handleCreate = () => {
     if (isSubscriptionLoading) {
       return;
     }
-
-    if (hasActiveSubscription || canCreate) {
-      setIsCreateModalOpen(true);
-    } else {
-      upgradeModal.openUpgradeModal();
-    }
-  };
-
-  const handleCreateSubmit = ({ name }: { name: string }) => {
-    createNewWorkflow({ name });
+    setIsCreateModalOpen(true);
   };
 
   return (

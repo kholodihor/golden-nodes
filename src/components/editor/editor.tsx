@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import {
   ReactFlow,
   MiniMap,
@@ -73,6 +73,17 @@ export default function Editor({ workflowId }: EditorProps) {
   // Initialize React Flow state with the actual data from Jotai
   const [flowNodes, setFlowNodes, onNodesChange] = useNodesState(nodes);
   const [flowEdges, setFlowEdges, onEdgesChange] = useEdgesState(edges);
+
+  // Sync Jotai atoms with React Flow state when data changes
+  useEffect(() => {
+    if (nodes.length > 0) {
+      setFlowNodes(nodes);
+    }
+  }, [nodes, setFlowNodes]);
+
+  useEffect(() => {
+    setFlowEdges(edges);
+  }, [edges, setFlowEdges]);
 
   const createConnection = useCreateConnection();
   const updateNode = useUpdateNode();

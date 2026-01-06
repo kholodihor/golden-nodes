@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import "server-only"; // <-- ensure this file cannot be imported from the client
 import {
   createTRPCOptionsProxy,
@@ -25,9 +24,13 @@ export function prefetch<T extends ReturnType<TRPCQueryOptions<any>>>(
 ) {
   const queryClient = getQueryClient();
   if (queryOptions.queryKey[1]?.type === "infinite") {
-    void queryClient.prefetchInfiniteQuery(queryOptions as any);
+    queryClient.prefetchInfiniteQuery(queryOptions as any).catch(() => {
+      // Silent fail - client will fetch data
+    });
   } else {
-    void queryClient.prefetchQuery(queryOptions);
+    queryClient.prefetchQuery(queryOptions).catch(() => {
+      // Silent fail - client will fetch data
+    });
   }
 }
 

@@ -47,14 +47,11 @@ export function TRPCReactProvider(
         httpBatchLink({
           transformer: superjson,
           url: getUrl(),
-          headers() {
-            if (typeof window === "undefined") {
-              return {};
-            }
-            return {
-              // Forward cookies from the browser to the server
-              cookie: document.cookie,
-            };
+          fetch(url, options) {
+            return fetch(url, {
+              ...options,
+              credentials: "include",
+            });
           },
         }),
       ],
