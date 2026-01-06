@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import React, { useState } from "react";
 import {
   useCreateeWorkflow,
   useSuspenseWorkflows,
@@ -13,8 +11,6 @@ import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import EntityHeader from "./entities/entity-header";
 import EntityContainer from "./entities/entity-container";
 import UpgradeModal from "./upgrade-modal";
-import { SearchInput } from "./entities/search-input";
-import { PaginationControls } from "./entities/pagination-controls";
 import { WorkflowsEmpty } from "./ui/workflows-empty";
 import { WorkflowGrid } from "./workflows/workflow-card";
 import { CreateWorkflowModal } from "./workflows/create-workflow-modal";
@@ -30,19 +26,9 @@ export interface Workflow {
 
 interface WorkflowsData {
   workflows: Workflow[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    totalCount: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-    search: string;
-  };
 }
 
 // Constants
-const WORKFLOW_DEFAULT_NAME = "Untitled Workflow";
 const FREE_PLAN_LIMIT = 1;
 
 // Helper functions
@@ -54,7 +40,6 @@ const canCreateWorkflow = (hasSubscription: boolean, workflowCount: number) =>
 // Custom hooks
 export const useWorkflowCreation = () => {
   const createWorkflow = useCreateeWorkflow();
-  const router = useRouter();
 
   const createNewWorkflow = ({ name }: { name: string }) => {
     createWorkflow.mutate({ name });
@@ -68,7 +53,6 @@ export const WorkflowsList = () => {
   const { hasActiveSubscription, isLoading: isSubscriptionLoading } =
     useHasActiveSubscription();
   const upgradeModal = useUpgradeModal();
-  const { createNewWorkflow } = useWorkflowCreation();
   const deleteWorkflow = useDeleteWorkflow();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -146,8 +130,21 @@ export const WorkflowsList = () => {
 };
 
 export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
-  const { hasActiveSubscription, isLoading: isSubscriptionLoading } =
-    useHasActiveSubscription();
+  return typeof window !== "undefined" ? (
+    <ClientWorkflowsHeader disabled={disabled} />
+  ) : (
+    <EntityHeader
+      title="Workflows"
+      description="Manage your workflows"
+      newButtonLabel="New workflow"
+      disabled={true}
+      isCreating={false}
+    />
+  );
+};
+
+function ClientWorkflowsHeader({ disabled }: { disabled?: boolean }) {
+  const { isLoading: isSubscriptionLoading } = useHasActiveSubscription();
   const upgradeModal = useUpgradeModal();
   const { isCreating } = useWorkflowCreation();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -186,7 +183,7 @@ export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
       />
     </>
   );
-};
+}
 
 export const WorkflowsContainer = ({
   children,
@@ -194,12 +191,6 @@ export const WorkflowsContainer = ({
   children: React.ReactNode;
 }) => {
   return (
-    <EntityContainer
-      header={<WorkflowsHeader />}
-      search={<SearchInput />}
-      pagination={<PaginationControls />}
-    >
-      {children}
-    </EntityContainer>
+    <EntityContainer header={<WorkflowsHeader />}>{children}</EntityContainer>
   );
 };

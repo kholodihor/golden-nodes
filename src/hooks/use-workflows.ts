@@ -11,13 +11,7 @@ import { toast } from "sonner";
 export const useSuspenseWorkflows = () => {
   const trpc = useTRPC();
 
-  return useSuspenseQuery(
-    trpc.workflows.getMany.queryOptions({
-      page: 1,
-      pageSize: 10,
-      search: "",
-    }),
-  );
+  return useSuspenseQuery(trpc.workflows.getMany.queryOptions({}));
 };
 
 export const useCreateeWorkflow = () => {
@@ -29,7 +23,7 @@ export const useCreateeWorkflow = () => {
     trpc.workflows.create.mutationOptions({
       onSuccess: data => {
         toast.success(`Workflow "${data.name}" created successfully`);
-        queryClient.invalidateQueries(trpc.workflows.getMany.queryOptions({}));
+        queryClient.invalidateQueries({ queryKey: [trpc.workflows.getMany] });
         router.push(`/workflows/${data.id}`);
       },
 
@@ -62,7 +56,7 @@ export const useUpdateWorkflow = () => {
         queryClient.invalidateQueries(
           trpc.workflows.getById.queryOptions({ id: data.id }),
         );
-        queryClient.invalidateQueries(trpc.workflows.getMany.queryOptions({}));
+        queryClient.invalidateQueries({ queryKey: [trpc.workflows.getMany] });
       },
 
       onError: error => {
@@ -81,7 +75,7 @@ export const useDeleteWorkflow = () => {
     trpc.workflows.remove.mutationOptions({
       onSuccess: () => {
         toast.success(`Workflow deleted successfully`);
-        queryClient.invalidateQueries(trpc.workflows.getMany.queryOptions({}));
+        queryClient.invalidateQueries({ queryKey: [trpc.workflows.getMany] });
       },
 
       onError: error => {

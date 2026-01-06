@@ -14,6 +14,20 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: true,
   },
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // 5 minutes
+    },
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // 1 day
+    cookieAttributes: {
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      httpOnly: true,
+      domain: process.env.NODE_ENV === "production" ? undefined : "localhost",
+    },
+  },
   plugins: [
     polar({
       client: polarClient,
@@ -23,14 +37,14 @@ export const auth = betterAuth({
           products: [
             {
               productId: "26f413a4-dd30-442f-9908-06ea4ffce053",
-              slug: "pro"
-            }
+              slug: "pro",
+            },
           ],
           successUrl: process.env.POLAR_SUCCESS_URL,
-          authenticatedUsersOnly: true
+          authenticatedUsersOnly: true,
         }),
         portal(),
       ],
-    })
-  ]
+    }),
+  ],
 });

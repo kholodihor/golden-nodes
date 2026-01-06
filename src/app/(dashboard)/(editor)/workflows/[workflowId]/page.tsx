@@ -1,4 +1,3 @@
-import { HydrateClient } from "@/trpc/server";
 import { requireAuth } from "@/utils/auth";
 import { Suspense } from "react";
 import { PageLoadingView } from "@/components/ui/loading-view";
@@ -16,13 +15,11 @@ const page = async ({ params }: PageProps) => {
   const { workflowId } = await params;
 
   return (
-    <HydrateClient>
-      <ClientErrorBoundary>
-        <Suspense fallback={<PageLoadingView />}>
-          <WorkflowEditorClient workflowId={workflowId} />
-        </Suspense>
-      </ClientErrorBoundary>
-    </HydrateClient>
+    <ClientErrorBoundary>
+      <Suspense fallback={<PageLoadingView />}>
+        <WorkflowEditorClient workflowId={workflowId} />
+      </Suspense>
+    </ClientErrorBoundary>
   );
 };
 
