@@ -1,89 +1,45 @@
 # Golden Nodes
 
-A modern workflow automation platform and n8n clone built with Next.js, featuring visual workflow design, AI-powered automation, and subscription-based premium features.
+A modern workflow automation platform and n8n clone built with Next.js, featuring visual workflow design, topological execution, and extensible executor registry.
 
 ## 🚀 Vision
 
-Golden Nodes is a next-generation workflow automation tool that combines the power of visual workflow design with AI intelligence. Create, automate, and optimize your business processes with an intuitive drag-and-drop interface.
+Golden Nodes is a next-generation workflow automation tool that combines the power of visual workflow design with intelligent execution. Create, automate, and optimize your business processes with an intuitive drag-and-drop interface.
 
 ## 🛠️ Technology Stack
 
-### Frontend Framework
-
-- **Next.js 16** - React framework with App Router for optimal performance
-- **React 19** - Latest React with concurrent features
-- **TypeScript** - Type-safe development
-
-### UI & Design
-
-- **Tailwind CSS 4** - Utility-first CSS framework
-- **Radix UI** - Accessible component primitives
-- **Lucide React** - Beautiful icon library
-- **React Hook Form** - Performant form handling
-- **Zod** - Schema validation
-- **React Flow** - Visual workflow editor with drag-and-drop nodes
-
-### State Management
-
-- **Jotai** - Atomic state management for optimal performance
-- **React Query** - Server state management and caching
-
-### Backend & API
-
-- **tRPC** - End-to-end type-safe APIs
-- **Prisma** - Modern database toolkit with PostgreSQL
-- **Better Auth** - Authentication and session management
+- **Next.js 16** + **React 19** + **TypeScript** - Modern frontend framework
+- **tRPC** + **Prisma** + **PostgreSQL** - Type-safe backend with database
 - **Inngest** - Background job processing and workflow orchestration
-
-### AI & Automation
-
-- **Google AI SDK** - AI-powered workflow suggestions and optimizations
-- **AI SDK** - Framework for AI integration
-
-### Database & Storage
-
-- **PostgreSQL** - Primary database
-- **Prisma Client** - Type-safe database access
-
-### Subscription & Payments
-
-- **Polar** - Subscription management and payment processing
-
-### Development Tools
-
-- **ESLint** - Code linting and quality
-- **Prettier** - Code formatting (80-char line limit)
-- **VS Code** - Recommended IDE with custom settings
+- **React Flow** - Visual workflow editor with drag-and-drop nodes
+- **Jotai** + **React Query** - Optimized state management
+- **Tailwind CSS** + **Radix UI** - Modern UI components
+- **Better Auth** - Authentication and session management
 
 ## 🌟 Key Features
 
-### Workflow Automation
+### Workflow Execution Engine
 
-- **Visual Workflow Designer** - Drag-and-drop node-based editor with React Flow
-- **Advanced Node Editor** - Comprehensive node configuration with modal interface
+- **Topological Sorting** - Automatic dependency resolution for complex workflows
+- **Executor Registry** - Extensible system for custom node types
+- **Real-time Execution** - Live status tracking with cancellation support
+- **Error Handling** - Comprehensive error recovery and retry logic
+- **HTTP Requests** - Full REST API support with variable substitution
+- **Conditional Logic** - Smart branching with expression evaluation
+
+### Built-in Node Types
+
+- **Start Nodes** - Workflow initialization and data injection
+- **Action Nodes** - HTTP requests, webhooks, delays, and custom actions
+- **Condition Nodes** - Advanced conditional logic with safe expression evaluation
+- **Custom Nodes** - Extensible registry for business-specific operations
+
+### Visual Workflow Designer
+
+- **Drag-and-Drop Editor** - Intuitive React Flow-based interface
+- **Node Configuration** - Modal-based node setup with JSON schema validation
 - **Template Variables** - Dynamic data binding between workflow nodes
-- **HTTP Request Nodes** - Full REST API support with all HTTP methods
-- **Webhook Triggers** - Real-time workflow activation with custom endpoints
-- **Node Status Indicators** - Visual feedback for node execution states
-- **100+ Integrations** - Connect popular services and APIs
-- **Conditional Logic** - Smart branching and decision-making
-- **Scheduled Execution** - Time-based and event triggers
-- **Error Handling** - Robust error recovery and retry logic
-- **Optimized Performance** - Jotai-based state management for instant updates
-
-### AI-Powered Features
-
-- **Workflow Suggestions** - AI recommends optimal automation patterns
-- **Natural Language Processing** - Create workflows from descriptions
-- **Smart Debugging** - AI identifies and fixes workflow issues
-- **Performance Optimization** - Automatic workflow efficiency improvements
-
-### Enterprise Features
-
-- **Team Collaboration** - Shared workflows and permissions
-- **Audit Logs** - Complete workflow execution history
-- **Custom Nodes** - Build and share custom integrations
-- **API Access** - Programmatic workflow management
+- **Real-time Validation** - Immediate feedback on workflow structure and cycles
 
 ## 🏗️ Architecture
 
@@ -91,21 +47,9 @@ Golden Nodes is a next-generation workflow automation tool that combines the pow
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Frontend      │    │    Backend      │    │   Database     │
 │                 │    │                 │    │                 │
-│ • Next.js 16    │◄──►│ • tRPC API      │◄──►│ • PostgreSQL    │
-│ • React 19      │    │ • Better Auth   │    │ • Prisma ORM   │
-│ • Tailwind CSS  │    │ • Inngest       │    │                 │
-│ • Radix UI      │    │ • AI Services   │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   UI Components │    │  Background     │    │   External      │
-│                 │    │   Processing    │    │   Services      │
-│ • Workflow      │    │                 │    │                 │
-│   Designer      │    │ • Inngest       │    │ • Polar         │
-│ • Node Editor   │    │ • Job Queue     │    │ • Google AI     │
-│ • Dashboard     │    │ • Webhooks      │    │ • 100+ APIs     │
+│ • React Flow    │◄──►│ • tRPC API      │◄──►│ • PostgreSQL    │
+│ • Executor Reg  │    │ • Inngest       │    │ • Prisma ORM   │
+│ • Topological   │    │ • Job Queue     │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
@@ -115,222 +59,119 @@ Golden Nodes is a next-generation workflow automation tool that combines the pow
 
 - Node.js 18+
 - PostgreSQL database
-- Polar account (for subscriptions)
-- Google AI API key
+- Google AI API key (optional)
 
 ### Installation
 
-1. **Clone and setup**
+```bash
+git clone https://github.com/kholodihor/golden-nodes.git
+cd golden-nodes
+npm install
+cp .env.example .env
+```
 
-   ```bash
-   git clone https://github.com/kholodihor/golden-nodes.git
-   cd golden-nodes
-   npm install
-   ```
+Configure environment variables:
 
-2. **Environment configuration**
+```env
+DATABASE_URL="postgresql://..."
+AUTH_SECRET="your-secret-key"
+GOOGLE_GENERATIVE_AI_API_KEY="your-google-ai-api-key"
+```
 
-   ```bash
-   cp .env.example .env
-   ```
+Database setup:
 
-   Configure essential variables:
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
 
-   ```env
-   DATABASE_URL="postgresql://..."
-   AUTH_SECRET="your-secret-key"
-   POLAR_ACCESS_TOKEN="your-polar-access-token"
-   GOOGLE_GENERATIVE_AI_API_KEY="your-google-ai-api-key"
-   ```
+Start development:
 
-3. **Database setup**
-
-   ```bash
-   npx prisma migrate dev
-   npx prisma generate
-   ```
-
-4. **Start development**
-   ```bash
-   npm run dev
-   ```
-   Visit [http://localhost:3000](http://localhost:3000)
+```bash
+npm run dev          # Frontend server
+npm run inngest      # Background job processor
+```
 
 ## 📁 Project Structure
 
 ```
 src/
-├── app/                    # Next.js App Router
-│   ├── dashboard/         # Main dashboard
-│   ├── workflows/        # Workflow management
-│   ├── integrations/     # Service connections
-│   └── api/             # API routes
-├── components/            # Reusable UI components
-│   ├── ui/              # Base UI components (Modal, ConfirmDialog)
-│   ├── editor/          # Workflow editor components
-│   │   ├── nodes/       # Node components (Trigger, Action, Custom)
-│   │   ├── node-editor.tsx    # Advanced node configuration modal
-│   │   ├── node-palette.tsx   # Node selection sidebar
-│   │   └── workflow-provider.tsx # Jotai state provider
-│   ├── workflow/        # Workflow-specific components
-│   └── integrations/   # Integration UI
-├── lib/                  # Core libraries
-│   ├── auth/            # Authentication logic
-│   ├── polar/           # Subscription management
-│   └── ai/              # AI services
-├── store/               # Jotai state management
-│   └── workflow-store.ts # Centralized workflow state
-├── types/               # Centralized TypeScript definitions
-│   └── index.ts         # All workflow and node types
-├── trpc/                 # tRPC procedures
-│   ├── routers/         # API routers
-│   └── procedures/      # Individual procedures
-├── hooks/               # Custom React hooks
-│   ├── use-nodes.ts     # Node CRUD operations
-│   └── use-debounce.ts  # Optimized debouncing
-├── inngest/             # Background jobs
-└── utils/               # Helper functions
+├── lib/
+│   ├── executors/          # Node executor registry
+│   │   ├── start-executor.ts
+│   │   ├── action-executor.ts
+│   │   ├── condition-executor.ts
+│   │   └── index.ts
+│   └── executor-registry.ts
+├── inngest/               # Background job functions
+├── components/
+│   ├── editor/            # Workflow editor components
+│   └── workflow/          # Execution components
+├── trpc/                 # Type-safe API
+├── utils/                # Topological sorting utilities
+└── types/                # TypeScript definitions
 ```
+
+## 🔧 Executor Registry
+
+The executor registry provides a clean, extensible system for adding custom node types:
+
+```typescript
+export class CustomExecutor extends BaseNodeExecutor {
+  type = "CUSTOM" as NodeType;
+  name = "Custom Action";
+  description = "Performs custom business logic";
+
+  async execute(nodeData: any, inputData: any, context: ExecutionContext) {
+    this.log(context, "Executing custom action");
+    return { result: "success", ...inputData };
+  }
+}
+
+executorRegistry.register(new CustomExecutor());
+```
+
+### Built-in Executors
+
+- **Start Node** - Initialize workflow execution with metadata
+- **Action Node** - HTTP requests, webhooks, delays, and custom actions
+- **Condition Node** - Advanced conditional logic with safe expression evaluation
 
 ## 🔧 Development
 
-### Available Scripts
-
 ```bash
 npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
-npm run lint         # Run ESLint
-npm run lint:fix     # Fix ESLint issues
 npm run inngest      # Start Inngest dev server
-npm run dev:all      # Start all dev services
+npm run build        # Build for production
+npm run lint         # Run ESLint
 ```
-
-### Code Quality
-
-- **TypeScript**: Strict mode enabled
-- **ESLint**: Next.js + TypeScript rules
-- **Prettier**: 80-character line limit
-- **Husky**: Pre-commit hooks
-
-### Database Operations
-
-```bash
-npx prisma generate    # Generate client
-npx prisma migrate dev # Run migrations
-npx prisma studio      # Visual database browser
-```
-
-## 🔐 Authentication & Security
-
-- **Better Auth**: Modern authentication solution
-- **OAuth Providers**: Google, GitHub, email/password
-- **Session Management**: Secure token-based sessions
-- **RBAC**: Role-based access control
-- **API Security**: Rate limiting and input validation
-
-## 💳 Subscription Model
-
-### Free Tier
-
-- Up to 5 active workflows
-- 100 executions per month
-- Basic integrations
-- Community support
-
-### Premium Tier
-
-- Unlimited workflows
-- 10,000 executions per month
-- All integrations
-- AI-powered features
-- Priority support
-- Custom nodes
-
-## 🤖 AI Integration
-
-### Workflow Intelligence
-
-- **Smart Suggestions**: AI recommends optimal node configurations
-- **Natural Language**: Create workflows from text descriptions
-- **Error Detection**: Proactive issue identification and resolution
-- **Performance Optimization**: Automatic workflow efficiency improvements
-
-### AI Models
-
-- **Google Gemini**: Advanced reasoning and analysis
-- **Custom Models**: Specialized automation intelligence
-
-## 🚀 Deployment
-
-### Production Setup
-
-1. **Environment Variables**: Configure all production secrets
-2. **Database**: Set up managed PostgreSQL
-3. **Background Jobs**: Configure Inngest infrastructure
-4. **Monitoring**: Set up logging and error tracking
-
-### Recommended Platforms
-
-- **Vercel**: Frontend and API hosting
-- **Railway/PlanetScale**: PostgreSQL database
-- **Inngest Cloud**: Background job processing
-- **Polar**: Subscription management
 
 ## 🎯 Roadmap
 
-### Phase 1: Core Platform
+### ✅ Phase 1: Core Platform
 
-- [x] Basic workflow designer
-- [x] Authentication system
-- [x] Subscription management
-- [x] Visual node editor with React Flow
-- [x] Advanced node configuration modal
-- [x] Template variables system
-- [x] HTTP request nodes with full REST support
-- [x] Webhook triggers with custom endpoints
-- [x] Node status indicators
-- [x] Optimized state management with Jotai
-- [x] Centralized TypeScript definitions
-- [ ] 50+ core integrations
+- [x] Visual workflow designer with React Flow
+- [x] Topological sorting for complex workflows
+- [x] Executor registry with built-in node types
+- [x] Real-time execution tracking
+- [x] HTTP requests and conditional logic
+- [x] Comprehensive error handling
 
-### Phase 2: AI Features
+### 🚧 Phase 2: AI Features
 
 - [ ] Natural language workflow creation
 - [ ] Smart debugging assistant
 - [ ] Performance optimization
-- [ ] Predictive analytics
 
-### Phase 3: Enterprise
+### 📋 Phase 3: Enterprise
 
 - [ ] Team collaboration
 - [ ] Advanced permissions
 - [ ] Custom branding
-- [ ] On-premise deployment
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Workflow
-
-1. Fork the repository
-2. Create a feature branch
-3. Implement your changes
-4. Add tests if applicable
-5. Ensure code quality standards
-6. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Support
-
-- **Documentation**: [docs.goldennodes.com](https://docs.goldennodes.com)
-- **Issues**: [GitHub Issues](https://github.com/kholodihor/golden-nodes/issues)
-- **Discord**: [Community Server](https://discord.gg/goldennodes)
-- **Email**: support@goldennodes.com
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 

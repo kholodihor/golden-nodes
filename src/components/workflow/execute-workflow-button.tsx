@@ -10,6 +10,7 @@ import type { WorkflowExecution } from "@/types";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import type { AppRouter } from "@/trpc/routers/_app";
 import superjson from "superjson";
+import { useWorkflowValidation } from "@/hooks/use-workflow-validation";
 
 // Create a direct client for polling
 const createDirectClient = () => {
@@ -32,17 +33,24 @@ const createDirectClient = () => {
 interface ExecuteWorkflowButtonProps {
   workflowId: string;
   disabled?: boolean;
+  nodes?: any[];
+  connections?: any[];
 }
 
 export function ExecuteWorkflowButton({
   workflowId,
   disabled = false,
+  nodes = [],
+  connections = [],
 }: ExecuteWorkflowButtonProps) {
   const [isExecuting, setIsExecuting] = useState(false);
   const [currentExecutionId, setCurrentExecutionId] = useState<string | null>(
     null,
   );
   const trpc = useTRPC();
+
+  // Validate workflow structure
+  const validation = useWorkflowValidation(nodes, connections);
 
   const executeMutation = useMutation(
     trpc.executions.execute.mutationOptions({
@@ -104,6 +112,12 @@ export function ExecuteWorkflowButton({
   );
 
   const handleExecute = () => {
+    // Check workflow validation before execution
+    if (!validation.canExecute) {
+      toast.error("Cannot execute workflow: " + validation.errors.join(", "));
+      return;
+    }
+
     executeMutation.mutate({
       workflowId,
       inputData: {

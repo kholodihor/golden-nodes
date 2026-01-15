@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { inngest } from "./client";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
+import { executorRegistry } from "@/lib/executors";
 
 const google = createGoogleGenerativeAI();
 
@@ -74,7 +75,6 @@ export const executeWorkflow = inngest.createFunction(
 // Topological sort to determine execution order
 function getExecutionOrder(workflow: any, startNodeId: string): string[] {
   const { nodes, connections } = workflow;
-  const nodeMap = new Map(nodes.map((node: any) => [node.id, node]));
   const visited = new Set<string>();
   const visiting = new Set<string>();
   const executionOrder: string[] = [];
@@ -181,10 +181,19 @@ async function executeNodeSequence({
     );
 
     // Execute node based on type
-    let nodeResult;
+    let nodeResult: any;
     try {
       nodeResult = await step.run(`execute-node-${node.id}`, async () => {
-        return executeNodeByType(node, inputData);
+        const context = {
+          executionId,
+          nodeId: node.id,
+          workflowId: workflow.id,
+          startTime: new Date(),
+          logger: (message: string, _level?: "info" | "warn" | "error") => {
+            console.log(`[${executionId}] ${message}`);
+          },
+        };
+        return executeNodeByType(node, inputData, context);
       });
 
       // Update node execution as success
@@ -223,104 +232,25 @@ async function executeNodeSequence({
 }
 
 // Execute individual node based on type
-async function executeNodeByType(node: any, inputData: any) {
-  const nodeData = node.data as any;
+async function executeNodeByType(
+  node: any,
+  inputData: any,
+  context: any,
+): Promise<any> {
+  const executor = executorRegistry.get(node.type);
 
-  switch (node.type) {
-    case "START":
-      // Start node typically just passes through input data
-      return {
-        message: "Workflow started",
-        timestamp: new Date().toISOString(),
-        ...inputData,
-      };
-
-    case "ACTION":
-      // Handle HTTP request nodes
-      if (nodeData.endpoint && nodeData.method) {
-        return await executeHttpRequest(nodeData, inputData);
-      }
-
-      // Handle other action types
-      return {
-        action: "executed",
-        nodeType: nodeData.actionType || "unknown",
-        input: inputData,
-        output: `Processed by ${node.name}`,
-      };
-
-    case "CONDITION":
-      // Handle conditional logic
-      return executeCondition(nodeData, inputData);
-
-    default:
-      return {
-        message: `Executed ${node.type} node`,
-        input: inputData,
-      };
+  if (!executor) {
+    throw new Error(`No executor found for node type: ${node.type}`);
   }
-}
 
-// HTTP request execution
-async function executeHttpRequest(nodeData: any, inputData: any) {
-  const { method, endpoint, headers, requestBody } = nodeData;
-
-  try {
-    const url = replaceVariables(endpoint, inputData);
-    const body = requestBody
-      ? replaceVariables(requestBody, inputData)
-      : undefined;
-
-    const response = await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        ...headers,
-      },
-      body: body ? JSON.stringify(body) : undefined,
-    });
-
-    const data = await response.json();
-
-    return {
-      status: response.status,
-      statusText: response.statusText,
-      data,
-      success: response.ok,
-    };
-  } catch (error) {
-    throw new Error(
-      `HTTP request failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-    );
+  // Validate node data before execution
+  const validation = executorRegistry.validate(node.type, node.data);
+  if (!validation.isValid) {
+    throw new Error(`Node validation failed: ${validation.errors.join(", ")}`);
   }
-}
 
-// Condition execution
-async function executeCondition(nodeData: any, inputData: any) {
-  // Simple condition evaluation - can be expanded
-  const condition = nodeData.condition || "true";
-
-  try {
-    // Basic evaluation - in production, use a safer expression evaluator
-    const result = eval(replaceVariables(condition, inputData));
-
-    return {
-      condition,
-      result,
-      branch: result ? "true" : "false",
-    };
-  } catch (error) {
-    throw new Error(
-      `Condition evaluation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-    );
-  }
-}
-
-// Variable replacement helper
-function replaceVariables(template: string, variables: any): string {
-  return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
-    return variables[key] || match;
-  });
+  // Execute using the registered executor
+  return await executor.execute(node.data, inputData, context);
 }
 
 // Workflow cancellation function
