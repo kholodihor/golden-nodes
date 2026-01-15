@@ -17,6 +17,7 @@ import {
 import CustomNode from "./nodes/custom-node";
 import TriggerNode from "./nodes/trigger-node";
 import ActionNode from "./nodes/action-node";
+import ConditionNode from "./nodes/condition-node";
 import {
   useCreateConnection,
   useUpdateNode,
@@ -34,6 +35,7 @@ const nodeTypes: NodeTypes = {
   custom: CustomNode,
   trigger: TriggerNode,
   action: ActionNode,
+  condition: ConditionNode,
 };
 
 interface EditorProps {
@@ -142,6 +144,8 @@ export default function Editor({ workflowId }: EditorProps) {
                 return "#10b981";
               case "action":
                 return "#3b82f6";
+              case "condition":
+                return "#a855f7";
               default:
                 return "#6b7280";
             }

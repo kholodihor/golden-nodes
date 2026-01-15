@@ -80,6 +80,7 @@ model Workflow {
 
   nodes Node[]
   connections Connection[]
+  executions WorkflowExecution[]
 
   userId String
   user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -130,4 +131,54 @@ model Connection {
   updatedAt DateTime @updatedAt
   
   @@map("connection")
+}
+
+enum ExecutionStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
+model WorkflowExecution {
+  id        String   @id @default(cuid())
+  workflowId String
+  workflow  Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  
+  status    ExecutionStatus @default(PENDING)
+  startedAt DateTime? @default(now())
+  completedAt DateTime?
+  inputData Json @default("{}")
+  outputData Json @default("{}")
+  error     String?
+  
+  nodeExecutions NodeExecution[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("workflow_execution")
+}
+
+model NodeExecution {
+  id          String   @id @default(cuid())
+  executionId String
+  execution   WorkflowExecution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  
+  nodeId      String
+  nodeType    NodeType
+  nodeName    String
+  
+  status      ExecutionStatus @default(PENDING)
+  startedAt   DateTime?
+  completedAt DateTime?
+  inputData   Json @default("{}")
+  outputData  Json @default("{}")
+  error       String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("node_execution")
 }

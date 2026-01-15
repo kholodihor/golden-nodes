@@ -5,13 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useCreateNode } from "@/hooks/use-nodes";
-import { Plus, Zap, Mail, Database, Filter } from "lucide-react";
+import { Plus, Zap, Mail, Database, Filter, Play } from "lucide-react";
 
 interface NodePaletteProps {
   workflowId: string;
 }
 
 const nodeTypes = [
+  {
+    type: "START" as const,
+    label: "Start",
+    description: "Initialize workflow execution",
+    icon: Play,
+    color: "bg-green-500",
+  },
   {
     type: "ACTION" as const,
     label: "HTTP Request",
@@ -58,6 +65,30 @@ export default function NodePalette({ workflowId }: NodePaletteProps) {
       data: {
         label: nodeType.label,
         description: nodeType.description,
+        // Set default data based on node type
+        ...(nodeType.type === "START" && {
+          webhookUrl: "Workflow started successfully",
+        }),
+        ...(nodeType.type === "ACTION" &&
+          nodeType.label === "HTTP Request" && {
+            actionType: "http_request",
+            method: "POST",
+            endpoint: "",
+            headers: { "Content-Type": "application/json" },
+          }),
+        ...(nodeType.type === "ACTION" &&
+          nodeType.label === "Send Email" && {
+            actionType: "email",
+          }),
+        ...(nodeType.type === "ACTION" &&
+          nodeType.label === "Database Query" && {
+            actionType: "database",
+          }),
+        ...(nodeType.type === "CONDITION" && {
+          condition: "status",
+          operator: "equals",
+          value: "success",
+        }),
       },
       position: { x, y },
     });

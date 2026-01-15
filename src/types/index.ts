@@ -2,6 +2,12 @@
 
 // Type definitions matching database schema
 export type NodeType = "ACTION" | "CONDITION" | "START" | "END";
+export type ExecutionStatus =
+  | "PENDING"
+  | "RUNNING"
+  | "SUCCESS"
+  | "FAILED"
+  | "CANCELLED";
 
 // Use a flexible type that matches what Prisma returns
 export interface WorkflowNode {
@@ -37,6 +43,37 @@ export interface WorkflowData {
   connections: WorkflowConnection[];
 }
 
+// Execution types
+export interface WorkflowExecution {
+  id: string;
+  workflowId: string;
+  status: ExecutionStatus;
+  startedAt?: Date;
+  completedAt?: Date;
+  inputData: any;
+  outputData: any;
+  error?: string;
+  nodeExecutions: NodeExecution[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface NodeExecution {
+  id: string;
+  executionId: string;
+  nodeId: string;
+  nodeType: NodeType;
+  nodeName: string;
+  status: ExecutionStatus;
+  startedAt?: Date;
+  completedAt?: Date;
+  inputData: any;
+  outputData: any;
+  error?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // React Flow specific types
 export interface ReactFlowNodeData {
   label: string;
@@ -57,5 +94,5 @@ export interface NodeEditorProps {
   onClose: () => void;
   nodeId: string;
   nodeData: ReactFlowNodeData;
-  nodeType: "trigger" | "action" | "custom";
+  nodeType: NodeType;
 }

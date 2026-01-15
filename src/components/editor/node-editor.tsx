@@ -5,8 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Code, Variable } from "lucide-react";
+import { Settings, Variable } from "lucide-react";
 import { useUpdateNode } from "@/hooks/use-nodes";
 import Modal from "@/components/ui/modal";
 import { NodeEditorProps } from "@/types";
@@ -48,6 +55,10 @@ export default function NodeEditor({
   nodeType,
 }: NodeEditorProps) {
   const updateNode = useUpdateNode();
+
+  // Debug logging
+  console.log("NodeEditor props:", { nodeType, nodeData, nodeId });
+
   const [formData, setFormData] = useState({
     label: nodeData.label || "",
     description: nodeData.description || "",
@@ -57,6 +68,11 @@ export default function NodeEditor({
     requestBody: nodeData.requestBody || "",
     headers: nodeData.headers || {},
     webhookUrl: nodeData.webhookUrl || "",
+    // Condition fields
+    condition: nodeData.condition || "",
+    operator: nodeData.operator || "equals",
+    value: nodeData.value || "",
+    expression: nodeData.expression || "",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -82,6 +98,11 @@ export default function NodeEditor({
           requestBody: formData.requestBody,
           headers: formData.headers,
           webhookUrl: formData.webhookUrl,
+          // Condition fields
+          condition: formData.condition,
+          operator: formData.operator,
+          value: formData.value,
+          expression: formData.expression,
         },
       },
       {
@@ -134,69 +155,143 @@ export default function NodeEditor({
           />
         </div>
 
-        {/* Trigger-specific webhook configuration */}
-        {nodeType === "trigger" && (
+        {/* START node configuration */}
+        {nodeType === "START" && (
           <div className="space-y-4">
             <TemplateVariablesHelper />
 
             <div className="space-y-2">
-              <Label htmlFor="webhookUrl">Webhook URL</Label>
+              <Label htmlFor="startMessage">Start Message</Label>
               <Input
-                id="webhookUrl"
+                id="startMessage"
                 value={formData.webhookUrl || ""}
                 onChange={e => handleInputChange("webhookUrl", e.target.value)}
-                placeholder="https://your-domain.com/webhooks/ai-workflow"
+                placeholder="Welcome message or initial data"
                 className="w-full"
               />
               <p className="text-xs text-gray-500">
-                This URL will receive webhook requests to trigger the AI
-                workflow
+                This message will be included in the workflow start data
               </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="triggerMethod">HTTP Method</Label>
-              <select
-                id="triggerMethod"
-                className="w-full p-2 border rounded-md"
-                value={formData.method || "POST"}
-                onChange={e => handleInputChange("method", e.target.value)}
-              >
-                <option value="POST">POST (Recommended)</option>
-                <option value="GET">GET</option>
-                <option value="PUT">PUT</option>
-                <option value="DELETE">DELETE</option>
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="triggerHeaders">
-                Expected Headers (Optional)
-              </Label>
-              <Textarea
-                id="triggerHeaders"
-                value={JSON.stringify(formData.headers || {}, null, 2)}
-                onChange={e => {
-                  try {
-                    const headers = JSON.parse(e.target.value);
-                    handleInputChange("headers", headers);
-                  } catch {
-                    // Invalid JSON, don't update
-                  }
-                }}
-                placeholder={`{
-  "Content-Type": "application/json",
-  "X-API-Key": "your-api-key"
-}`}
-                rows={3}
-                className="w-full font-mono text-sm"
-              />
             </div>
           </div>
         )}
 
+        {/* Condition node configuration */}
+        {nodeType === "CONDITION" && (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="conditionType">Condition Type</Label>
+              <select
+                id="conditionType"
+                className="w-full p-2 border rounded-md"
+                value={formData.expression ? "expression" : "simple"}
+                onChange={e => {
+                  if (e.target.value === "expression") {
+                    handleInputChange(
+                      "expression",
+                      formData.expression || "status === 'success'",
+                    );
+                    handleInputChange("condition", "");
+                  } else {
+                    handleInputChange(
+                      "condition",
+                      formData.condition || "status",
+                    );
+                    handleInputChange("expression", "");
+                  }
+                }}
+              >
+                <option value="simple">Simple Condition</option>
+                <option value="expression">Custom Expression</option>
+              </select>
+            </div>
+
+            {!formData.expression ? (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="condition">Field/Variable</Label>
+                  <Input
+                    id="condition"
+                    value={formData.condition}
+                    onChange={e =>
+                      handleInputChange("condition", e.target.value)
+                    }
+                    placeholder="e.g., {{status}} or trigger.data.email"
+                    className="w-full"
+                  />
+                  <p className="text-xs text-gray-500">
+                    Use {"{{variable}}"} syntax for template variables
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="operator">Operator</Label>
+                  <select
+                    id="operator"
+                    className="w-full p-2 border rounded-md"
+                    value={formData.operator}
+                    onChange={e =>
+                      handleInputChange("operator", e.target.value)
+                    }
+                  >
+                    <option value="equals">Equals</option>
+                    <option value="not_equals">Not Equals</option>
+                    <option value="greater_than">Greater Than</option>
+                    <option value="less_than">Less Than</option>
+                    <option value="greater_equal">Greater or Equal</option>
+                    <option value="less_equal">Less or Equal</option>
+                    <option value="contains">Contains</option>
+                    <option value="not_contains">Not Contains</option>
+                    <option value="starts_with">Starts With</option>
+                    <option value="ends_with">Ends With</option>
+                    <option value="is_empty">Is Empty</option>
+                    <option value="is_not_empty">Is Not Empty</option>
+                    <option value="exists">Exists</option>
+                    <option value="not_exists">Not Exists</option>
+                  </select>
+                </div>
+
+                {!["is_empty", "is_not_empty", "exists", "not_exists"].includes(
+                  formData.operator,
+                ) && (
+                  <div className="space-y-2">
+                    <Label htmlFor="value">Value</Label>
+                    <Input
+                      id="value"
+                      value={formData.value}
+                      onChange={e => handleInputChange("value", e.target.value)}
+                      placeholder="Value to compare against"
+                      className="w-full"
+                    />
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="space-y-2">
+                <Label htmlFor="expression">Expression</Label>
+                <Textarea
+                  id="expression"
+                  value={formData.expression}
+                  onChange={e =>
+                    handleInputChange("expression", e.target.value)
+                  }
+                  placeholder="e.g., status === 'success' && count > 5"
+                  rows={3}
+                  className="w-full font-mono text-sm"
+                />
+                <p className="text-xs text-gray-500">
+                  Use JavaScript expressions with variables. Available
+                  operators: ===, !==, &gt;, &lt;, &gt;=, &lt;=, &&, ||, !
+                </p>
+              </div>
+            )}
+
+            <TemplateVariablesHelper />
+          </div>
+        )}
+
         {/* Add more node-specific fields here based on nodeType */}
-        {nodeType === "action" && (
+        {nodeType === "ACTION" && (
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="actionType">Action Type</Label>
@@ -290,16 +385,6 @@ export default function NodeEditor({
                 </div>
               </>
             )}
-          </div>
-        )}
-        {nodeType === "custom" && (
-          <div className="space-y-2">
-            <Label htmlFor="customConfig">Custom Configuration</Label>
-            <Input
-              id="customConfig"
-              placeholder="Custom setting"
-              className="w-full"
-            />
           </div>
         )}
         <div className="flex gap-2 pt-4">
