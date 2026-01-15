@@ -33,7 +33,9 @@ export const convertedNodesAtom = atom(get => {
         ? "trigger"
         : dbNode.type === "ACTION"
           ? "action"
-          : "custom";
+          : dbNode.type === "CONDITION"
+            ? "condition"
+            : "custom";
 
     return {
       id: dbNode.id,

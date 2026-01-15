@@ -65,7 +65,7 @@ export default function TriggerNode({ data, selected, id }: NodeProps) {
 
   return (
     <Card
-      className={`min-w-[200px] scale-50 transition-all ${selected ? "ring-2 ring-green-500" : ""}`}
+      className={`min-w-[300px]  scale-40 transition-all ${selected ? "ring-2 ring-green-500" : ""}`}
     >
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
@@ -123,7 +123,7 @@ export default function TriggerNode({ data, selected, id }: NodeProps) {
         onClose={() => setShowEditor(false)}
         nodeId={id as string}
         nodeData={nodeData}
-        nodeType="trigger"
+        nodeType="START"
       />
     </Card>
   );

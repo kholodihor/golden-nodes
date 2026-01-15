@@ -94,5 +94,5 @@ export interface NodeEditorProps {
   onClose: () => void;
   nodeId: string;
   nodeData: ReactFlowNodeData;
-  nodeType: "trigger" | "action" | "custom";
+  nodeType: NodeType;
 }

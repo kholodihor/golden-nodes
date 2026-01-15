@@ -27,6 +27,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { signIn } from "@/lib/auth-client";
 
 const schema = z.object({
@@ -92,20 +93,13 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Login</CardTitle>
-          <CardDescription>Sign in with your email and password.</CardDescription>
+          <CardDescription>
+            Sign in with your email and password.
+          </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          {submitError ? (
-            <Alert variant="destructive">
-              <AlertDescription>{submitError}</AlertDescription>
-            </Alert>
-          ) : null}
-
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="grid gap-4"
-            >
+            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
               <FormField
                 control={form.control}
                 name="email"
@@ -132,8 +126,7 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
+                      <PasswordInput
                         autoComplete="current-password"
                         placeholder="••••••••"
                         {...field}
@@ -149,11 +142,20 @@ export default function LoginPage() {
               </Button>
             </form>
           </Form>
+
+          {submitError ? (
+            <Alert variant="destructive">
+              <AlertDescription>{submitError}</AlertDescription>
+            </Alert>
+          ) : null}
         </CardContent>
         <CardFooter className="justify-center">
           <div className="text-muted-foreground text-sm">
             Don&apos;t have an account?{" "}
-            <Link className="text-primary underline underline-offset-4" href="/register">
+            <Link
+              className="text-primary underline underline-offset-4"
+              href="/register"
+            >
               Register
             </Link>
           </div>

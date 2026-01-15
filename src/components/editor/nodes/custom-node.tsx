@@ -60,7 +60,7 @@ export default function CustomNode({ data, selected, id }: NodeProps) {
 
   return (
     <Card
-      className={`min-w-[200px] scale-50 transition-all ${selected ? "ring-2 ring-purple-500" : ""}`}
+      className={`min-w-[300px]  scale-40 transition-all ${selected ? "ring-2 ring-purple-500" : ""}`}
     >
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
@@ -126,7 +126,7 @@ export default function CustomNode({ data, selected, id }: NodeProps) {
         onClose={() => setShowEditor(false)}
         nodeId={id as string}
         nodeData={data as any}
-        nodeType="custom"
+        nodeType="ACTION"
       />
     </Card>
   );

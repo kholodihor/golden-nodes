@@ -27,6 +27,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { signUp } from "@/lib/auth-client";
 
 const schema = z.object({
@@ -98,17 +99,8 @@ export default function RegisterPage() {
           <CardDescription>Sign up with email and password.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
-          {submitError ? (
-            <Alert variant="destructive">
-              <AlertDescription>{submitError}</AlertDescription>
-            </Alert>
-          ) : null}
-
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="grid gap-4"
-            >
+            <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
               <FormField
                 control={form.control}
                 name="name"
@@ -154,8 +146,7 @@ export default function RegisterPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
+                      <PasswordInput
                         autoComplete="new-password"
                         placeholder="••••••••"
                         {...field}
@@ -171,11 +162,20 @@ export default function RegisterPage() {
               </Button>
             </form>
           </Form>
+
+          {submitError ? (
+            <Alert variant="destructive">
+              <AlertDescription>{submitError}</AlertDescription>
+            </Alert>
+          ) : null}
         </CardContent>
         <CardFooter className="justify-center">
           <div className="text-muted-foreground text-sm">
             Already have an account?{" "}
-            <Link className="text-primary underline underline-offset-4" href="/login">
+            <Link
+              className="text-primary underline underline-offset-4"
+              href="/login"
+            >
               Login
             </Link>
           </div>

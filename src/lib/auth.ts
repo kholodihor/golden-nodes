@@ -32,6 +32,11 @@ export const auth = betterAuth({
     polar({
       client: polarClient,
       createCustomerOnSignUp: true,
+      // Use a different external_id strategy to avoid conflicts
+      mapExternalId: async ({ user }: { user: any }) => {
+        // Use a combination of user ID and timestamp to ensure uniqueness
+        return `user_${user.id}_${Date.now()}`;
+      },
       use: [
         checkout({
           products: [

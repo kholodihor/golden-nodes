@@ -11,16 +11,17 @@ import {
   CheckCircle,
   AlertCircle,
   Clock,
+  Filter,
 } from "lucide-react";
 import { useDeleteNode } from "@/hooks/use-nodes";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 import NodeEditor from "@/components/editor/node-editor";
 import { ReactFlowNodeData } from "@/types";
 
-type ActionNodeData = ReactFlowNodeData;
+type ConditionNodeData = ReactFlowNodeData;
 
-export default function ActionNode({ data, selected, id }: NodeProps) {
-  const nodeData = data as unknown as ActionNodeData;
+export default function ConditionNode({ data, selected, id }: NodeProps) {
+  const nodeData = data as unknown as ConditionNodeData;
   const deleteNode = useDeleteNode();
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
   const [showEditor, setShowEditor] = React.useState(false);
@@ -60,13 +61,16 @@ export default function ActionNode({ data, selected, id }: NodeProps) {
 
   return (
     <Card
-      className={`min-w-[300px]  scale-40 transition-all ${selected ? "ring-2 ring-blue-500" : ""}`}
+      className={`min-w-[300px]  scale-40 transition-all ${selected ? "ring-2 ring-purple-500" : ""}`}
     >
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">
-              Action
+            <Badge
+              variant="default"
+              className="bg-purple-500 hover:bg-purple-600"
+            >
+              Condition
             </Badge>
             {getStatusIndicator(nodeData.status)}
           </div>
@@ -75,7 +79,7 @@ export default function ActionNode({ data, selected, id }: NodeProps) {
               variant="ghost"
               size="sm"
               onClick={handleEdit}
-              className="h-6 w-6 p-0 hover:bg-blue-100"
+              className="h-6 w-6 p-0 hover:bg-purple-100"
             >
               <Settings className="h-3 w-3" />
             </Button>
@@ -96,18 +100,40 @@ export default function ActionNode({ data, selected, id }: NodeProps) {
         <p className="text-xs text-muted-foreground">
           {(data as any).description}
         </p>
+        {/* Show condition preview */}
+        {(data as any).condition && (
+          <div className="mt-2 p-2 bg-purple-50 rounded text-xs">
+            <div className="flex items-center gap-1">
+              <Filter className="h-3 w-3 text-purple-600" />
+              <span className="text-purple-700">
+                {(data as any).condition} {(data as any).operator}{" "}
+                {(data as any).value}
+              </span>
+            </div>
+          </div>
+        )}
+        {(data as any).expression && (
+          <div className="mt-2 p-2 bg-purple-50 rounded text-xs">
+            <div className="flex items-center gap-1">
+              <Filter className="h-3 w-3 text-purple-600" />
+              <span className="text-purple-700 font-mono">
+                {(data as any).expression}
+              </span>
+            </div>
+          </div>
+        )}
       </CardContent>
       <Handle
         type="target"
         position={Position.Top}
         id="target"
-        className="w-3 h-3 bg-blue-500 border-2 border-white"
+        className="w-3 h-3 bg-purple-500 border-2 border-white"
       />
       <Handle
         type="source"
         position={Position.Bottom}
         id="source"
-        className="w-3 h-3 bg-blue-500 border-2 border-white"
+        className="w-3 h-3 bg-purple-500 border-2 border-white"
       />
       <ConfirmDialog
         isOpen={showConfirmDialog}
@@ -123,7 +149,7 @@ export default function ActionNode({ data, selected, id }: NodeProps) {
         onClose={() => setShowEditor(false)}
         nodeId={id as string}
         nodeData={data as any}
-        nodeType="ACTION"
+        nodeType="CONDITION"
       />
     </Card>
   );
