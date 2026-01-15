@@ -52,3 +52,13 @@ export type Node = Prisma.NodeModel
  * 
  */
 export type Connection = Prisma.ConnectionModel
+/**
+ * Model WorkflowExecution
+ * 
+ */
+export type WorkflowExecution = Prisma.WorkflowExecutionModel
+/**
+ * Model NodeExecution
+ * 
+ */
+export type NodeExecution = Prisma.NodeExecutionModel

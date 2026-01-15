@@ -17,3 +17,14 @@ export const NodeType = {
 } as const
 
 export type NodeType = (typeof NodeType)[keyof typeof NodeType]
+
+
+export const ExecutionStatus = {
+  PENDING: 'PENDING',
+  RUNNING: 'RUNNING',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type ExecutionStatus = (typeof ExecutionStatus)[keyof typeof ExecutionStatus]

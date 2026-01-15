@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from "date-fns";
-import { MoreHorizontal, Play, Edit, Trash2, Copy } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Copy } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -29,13 +29,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Workflow } from "./types";
+import { ExecuteWorkflowButton } from "@/components/workflow/execute-workflow-button";
 
 interface WorkflowCardProps {
   workflow: Workflow;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onDuplicate?: (id: string) => void;
-  onRun?: (id: string) => void;
   isRunning?: boolean;
 }
 
@@ -44,7 +44,6 @@ export const WorkflowCard = ({
   onEdit,
   onDelete,
   onDuplicate,
-  onRun,
   isRunning = false,
 }: WorkflowCardProps) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -126,15 +125,10 @@ export const WorkflowCard = ({
                   Open
                 </Button>
               </Link>
-              <Button
-                size="sm"
-                onClick={() => handleAction(() => onRun?.(workflow.id))}
+              <ExecuteWorkflowButton
+                workflowId={workflow.id}
                 disabled={isRunning}
-                className="gap-2"
-              >
-                <Play className="h-3 w-3" />
-                {isRunning ? "Running..." : "Run"}
-              </Button>
+              />
             </div>
           </div>
 
@@ -191,7 +185,6 @@ interface WorkflowGridProps {
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
   onDuplicate?: (id: string) => void;
-  onRun?: (id: string) => void;
   loadingWorkflows?: string[];
 }
 
@@ -200,7 +193,6 @@ export const WorkflowGrid = ({
   onEdit,
   onDelete,
   onDuplicate,
-  onRun,
   loadingWorkflows = [],
 }: WorkflowGridProps) => {
   if (workflows.length === 0) {
@@ -216,7 +208,6 @@ export const WorkflowGrid = ({
           onEdit={onEdit}
           onDelete={onDelete}
           onDuplicate={onDuplicate}
-          onRun={onRun}
           isRunning={loadingWorkflows.includes(workflow.id)}
         />
       ))}
