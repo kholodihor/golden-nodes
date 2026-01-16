@@ -13,7 +13,10 @@ export const NodeType = {
   ACTION: 'ACTION',
   CONDITION: 'CONDITION',
   START: 'START',
-  END: 'END'
+  END: 'END',
+  HTTP_REQUEST: 'HTTP_REQUEST',
+  EMAIL: 'EMAIL',
+  DATABASE_QUERY: 'DATABASE_QUERY'
 } as const
 
 export type NodeType = (typeof NodeType)[keyof typeof NodeType]

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useCreateNode } from "@/hooks/use-nodes";
-import { Plus, Zap, Mail, Database, Filter, Play } from "lucide-react";
+import { Plus, Mail, Database, Filter, Play, Globe } from "lucide-react";
 
 interface NodePaletteProps {
   workflowId: string;
@@ -20,21 +20,21 @@ const nodeTypes = [
     color: "bg-green-500",
   },
   {
-    type: "ACTION" as const,
+    type: "HTTP_REQUEST" as const,
     label: "HTTP Request",
     description: "Make HTTP request to external API",
-    icon: Zap,
-    color: "bg-blue-500",
+    icon: Globe,
+    color: "bg-purple-500",
   },
   {
-    type: "ACTION" as const,
+    type: "EMAIL" as const,
     label: "Send Email",
     description: "Send email notification",
     icon: Mail,
     color: "bg-blue-500",
   },
   {
-    type: "ACTION" as const,
+    type: "DATABASE_QUERY" as const,
     label: "Database Query",
     description: "Query database for data",
     icon: Database,
@@ -45,7 +45,7 @@ const nodeTypes = [
     label: "Condition",
     description: "Conditional logic branching",
     icon: Filter,
-    color: "bg-purple-500",
+    color: "bg-orange-500",
   },
 ];
 
@@ -69,21 +69,23 @@ export default function NodePalette({ workflowId }: NodePaletteProps) {
         ...(nodeType.type === "START" && {
           webhookUrl: "Workflow started successfully",
         }),
-        ...(nodeType.type === "ACTION" &&
-          nodeType.label === "HTTP Request" && {
-            actionType: "http_request",
-            method: "POST",
-            endpoint: "",
-            headers: { "Content-Type": "application/json" },
-          }),
-        ...(nodeType.type === "ACTION" &&
-          nodeType.label === "Send Email" && {
-            actionType: "email",
-          }),
-        ...(nodeType.type === "ACTION" &&
-          nodeType.label === "Database Query" && {
-            actionType: "database",
-          }),
+        ...(nodeType.type === "HTTP_REQUEST" && {
+          method: "POST",
+          endpoint: "",
+          headers: { "Content-Type": "application/json" },
+          requestBody: "",
+        }),
+        ...(nodeType.type === "EMAIL" && {
+          to: "{{trigger.data.email}}",
+          subject: "Workflow Notification",
+          body: "Hello {{trigger.data.name}},\n\nYour workflow has completed successfully.",
+          from: "noreply@yourdomain.com",
+        }),
+        ...(nodeType.type === "DATABASE_QUERY" && {
+          queryType: "SELECT",
+          query: "SELECT * FROM users WHERE id = {{trigger.data.userId}}",
+          tableName: "users",
+        }),
         ...(nodeType.type === "CONDITION" && {
           condition: "status",
           operator: "equals",

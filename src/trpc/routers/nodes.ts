@@ -7,7 +7,15 @@ import { TRPCError } from "@trpc/server";
 const createNodeSchema = z.object({
   workflowId: z.string().cuid(),
   name: z.string().min(1).max(100),
-  type: z.enum(["ACTION", "CONDITION", "START", "END"]),
+  type: z.enum([
+    "ACTION",
+    "CONDITION",
+    "START",
+    "END",
+    "HTTP_REQUEST",
+    "EMAIL",
+    "DATABASE_QUERY",
+  ]),
   data: z.any().optional().default({}),
   position: z.object({
     x: z.number(),

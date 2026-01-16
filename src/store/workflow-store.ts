@@ -35,7 +35,13 @@ export const convertedNodesAtom = atom(get => {
           ? "action"
           : dbNode.type === "CONDITION"
             ? "condition"
-            : "custom";
+            : dbNode.type === "HTTP_REQUEST"
+              ? "httpRequest"
+              : dbNode.type === "EMAIL"
+                ? "email"
+                : dbNode.type === "DATABASE_QUERY"
+                  ? "databaseQuery"
+                  : "custom";
 
     return {
       id: dbNode.id,

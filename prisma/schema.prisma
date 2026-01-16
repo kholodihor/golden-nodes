@@ -93,6 +93,9 @@ enum NodeType {
   CONDITION
   START
   END
+  HTTP_REQUEST
+  EMAIL
+  DATABASE_QUERY
 }
 
 model Node {

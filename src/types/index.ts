@@ -1,7 +1,14 @@
 // Workflow and Node Type Definitions
 
 // Type definitions matching database schema
-export type NodeType = "ACTION" | "CONDITION" | "START" | "END";
+export type NodeType =
+  | "ACTION"
+  | "CONDITION"
+  | "START"
+  | "END"
+  | "HTTP_REQUEST"
+  | "EMAIL"
+  | "DATABASE_QUERY";
 export type ExecutionStatus =
   | "PENDING"
   | "RUNNING"
