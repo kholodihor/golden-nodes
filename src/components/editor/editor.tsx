@@ -18,6 +18,9 @@ import CustomNode from "./nodes/custom-node";
 import TriggerNode from "./nodes/trigger-node";
 import ActionNode from "./nodes/action-node";
 import ConditionNode from "./nodes/condition-node";
+import HttpRequestNode from "./nodes/http-request-node";
+import EmailNode from "./nodes/email-node";
+import DatabaseQueryNode from "./nodes/database-query-node";
 import {
   useCreateConnection,
   useUpdateNode,
@@ -36,6 +39,9 @@ const nodeTypes: NodeTypes = {
   trigger: TriggerNode,
   action: ActionNode,
   condition: ConditionNode,
+  httpRequest: HttpRequestNode,
+  email: EmailNode,
+  databaseQuery: DatabaseQueryNode,
 };
 
 interface EditorProps {
@@ -146,6 +152,12 @@ export default function Editor({ workflowId }: EditorProps) {
                 return "#3b82f6";
               case "condition":
                 return "#a855f7";
+              case "httpRequest":
+                return "#8b5cf6";
+              case "email":
+                return "#3b82f6";
+              case "databaseQuery":
+                return "#3b82f6";
               default:
                 return "#6b7280";
             }

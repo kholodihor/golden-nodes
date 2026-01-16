@@ -5,13 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Settings, Variable } from "lucide-react";
 import { useUpdateNode } from "@/hooks/use-nodes";
@@ -28,13 +21,16 @@ const TemplateVariablesHelper = () => (
       </Label>
     </div>
     <div className="space-y-1 text-xs text-gray-600">
-      <p>Use these variables in your request:</p>
+      <p>Use these variables in your configuration:</p>
       <div className="grid grid-cols-1 gap-1 mt-2">
         <code className="bg-white px-2 py-1 rounded border border-gray-300 block">
           {"{{trigger.data.email}}"} - From trigger node
         </code>
         <code className="bg-white px-2 py-1 rounded border border-gray-300 block">
           {"{{trigger.data.userId}}"} - User ID from trigger
+        </code>
+        <code className="bg-white px-2 py-1 rounded border border-gray-300 block">
+          {"{{trigger.data.name}}"} - User name from trigger
         </code>
         <code className="bg-white px-2 py-1 rounded border border-gray-300 block">
           {"{{previousNode.response.data.id}}"} - Previous node response
@@ -68,6 +64,15 @@ export default function NodeEditor({
     requestBody: nodeData.requestBody || "",
     headers: nodeData.headers || {},
     webhookUrl: nodeData.webhookUrl || "",
+    // Email fields
+    to: nodeData.to || "",
+    subject: nodeData.subject || "",
+    body: nodeData.body || "",
+    from: nodeData.from || "",
+    // Database fields
+    queryType: nodeData.queryType || "SELECT",
+    query: nodeData.query || "",
+    tableName: nodeData.tableName || "",
     // Condition fields
     condition: nodeData.condition || "",
     operator: nodeData.operator || "equals",
@@ -98,6 +103,15 @@ export default function NodeEditor({
           requestBody: formData.requestBody,
           headers: formData.headers,
           webhookUrl: formData.webhookUrl,
+          // Email fields
+          to: formData.to,
+          subject: formData.subject,
+          body: formData.body,
+          from: formData.from,
+          // Database fields
+          queryType: formData.queryType,
+          query: formData.query,
+          tableName: formData.tableName,
           // Condition fields
           condition: formData.condition,
           operator: formData.operator,
@@ -287,6 +301,193 @@ export default function NodeEditor({
             )}
 
             <TemplateVariablesHelper />
+          </div>
+        )}
+
+        {/* HTTP Request node configuration */}
+        {nodeType === "HTTP_REQUEST" && (
+          <div className="space-y-4">
+            <TemplateVariablesHelper />
+
+            <div className="space-y-2">
+              <Label htmlFor="method">HTTP Method</Label>
+              <select
+                id="method"
+                className="w-full p-2 border rounded-md"
+                value={formData.method}
+                onChange={e => handleInputChange("method", e.target.value)}
+              >
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+                <option value="PATCH">PATCH</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="endpoint">Endpoint URL</Label>
+              <Input
+                id="endpoint"
+                value={formData.endpoint}
+                onChange={e => handleInputChange("endpoint", e.target.value)}
+                placeholder="https://api.example.com/webhook?userId={{trigger.data.userId}}"
+                className="w-full"
+              />
+            </div>
+
+            {(formData.method === "POST" ||
+              formData.method === "PUT" ||
+              formData.method === "PATCH") && (
+              <div className="space-y-2">
+                <Label htmlFor="requestBody">Request Body (JSON)</Label>
+                <Textarea
+                  id="requestBody"
+                  value={formData.requestBody}
+                  onChange={e =>
+                    handleInputChange("requestBody", e.target.value)
+                  }
+                  placeholder={`{
+  "email": "{{trigger.data.email}}",
+  "userId": "{{trigger.data.userId}}",
+  "workflowId": "{{workflow.id}}"
+}`}
+                  rows={4}
+                  className="w-full font-mono text-sm"
+                />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="headers">Headers (JSON)</Label>
+              <Textarea
+                id="headers"
+                value={JSON.stringify(formData.headers, null, 2)}
+                onChange={e => {
+                  try {
+                    const headers = JSON.parse(e.target.value);
+                    handleInputChange("headers", headers);
+                  } catch {
+                    // Invalid JSON, don't update
+                  }
+                }}
+                placeholder={`{
+  "Content-Type": "application/json",
+  "X-Workflow-ID": "{{workflow.id}}"
+}`}
+                rows={3}
+                className="w-full font-mono text-sm"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Email node configuration */}
+        {nodeType === "EMAIL" && (
+          <div className="space-y-4">
+            <TemplateVariablesHelper />
+
+            <div className="space-y-2">
+              <Label htmlFor="to">To Email</Label>
+              <Input
+                id="to"
+                value={formData.to}
+                onChange={e => handleInputChange("to", e.target.value)}
+                placeholder="{{trigger.data.email}}"
+                className="w-full"
+              />
+              <p className="text-xs text-gray-500">
+                Use {"{{variable}}"} syntax for template variables
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="subject">Subject</Label>
+              <Input
+                id="subject"
+                value={formData.subject}
+                onChange={e => handleInputChange("subject", e.target.value)}
+                placeholder="Email subject"
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="from">From Email</Label>
+              <Input
+                id="from"
+                value={formData.from}
+                onChange={e => handleInputChange("from", e.target.value)}
+                placeholder="noreply@yourdomain.com"
+                className="w-full"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="body">Email Body</Label>
+              <Textarea
+                id="body"
+                value={formData.body}
+                onChange={e => handleInputChange("body", e.target.value)}
+                placeholder={`Hello {{trigger.data.name}},
+
+Your workflow {{workflow.id}} has completed successfully.
+
+Best regards`}
+                rows={6}
+                className="w-full"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Database Query node configuration */}
+        {nodeType === "DATABASE_QUERY" && (
+          <div className="space-y-4">
+            <TemplateVariablesHelper />
+
+            <div className="space-y-2">
+              <Label htmlFor="queryType">Query Type</Label>
+              <select
+                id="queryType"
+                className="w-full p-2 border rounded-md"
+                value={formData.queryType}
+                onChange={e => handleInputChange("queryType", e.target.value)}
+              >
+                <option value="SELECT">SELECT (Read)</option>
+                <option value="INSERT">INSERT (Create)</option>
+                <option value="UPDATE">UPDATE (Modify)</option>
+                <option value="DELETE">DELETE (Remove)</option>
+              </select>
+            </div>
+
+            {formData.queryType === "SELECT" && (
+              <div className="space-y-2">
+                <Label htmlFor="tableName">Table Name</Label>
+                <Input
+                  id="tableName"
+                  value={formData.tableName}
+                  onChange={e => handleInputChange("tableName", e.target.value)}
+                  placeholder="users"
+                  className="w-full"
+                />
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="query">SQL Query</Label>
+              <Textarea
+                id="query"
+                value={formData.query}
+                onChange={e => handleInputChange("query", e.target.value)}
+                placeholder={`SELECT * FROM users WHERE id = {{trigger.data.userId}}`}
+                rows={4}
+                className="w-full font-mono text-sm"
+              />
+              <p className="text-xs text-gray-500">
+                Use {"{{variable}}"} syntax for template variables
+              </p>
+            </div>
           </div>
         )}
 
