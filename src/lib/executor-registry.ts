@@ -1,4 +1,5 @@
 import { NodeType } from "@/types";
+import Handlebars from "handlebars";
 
 export interface NodeExecutor {
   type: NodeType;
@@ -116,9 +117,25 @@ export abstract class BaseNodeExecutor implements NodeExecutor {
   protected replaceVariables(template: string, variables: any): string {
     if (typeof template !== "string") return template;
 
-    return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
-      return variables[key] !== undefined ? String(variables[key]) : match;
-    });
+    try {
+      const compiled = Handlebars.compile(template);
+      return compiled(variables);
+    } catch (error) {
+      // Fallback to original template if Handlebars compilation fails
+      this.log(
+        {
+          executionId: "unknown",
+          nodeId: "unknown",
+          workflowId: "unknown",
+          userId: "unknown",
+          startTime: new Date(),
+          logger: console.log,
+        },
+        `Template compilation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+        "warn",
+      );
+      return template;
+    }
   }
 
   protected validateRequiredFields(

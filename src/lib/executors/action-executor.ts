@@ -1,5 +1,6 @@
 import { BaseNodeExecutor, ExecutionContext } from "../executor-registry";
 import { NodeType } from "@/types";
+import ky from "ky";
 
 export class ActionNodeExecutor extends BaseNodeExecutor {
   type = "ACTION" as NodeType;
@@ -46,25 +47,38 @@ export class ActionNodeExecutor extends BaseNodeExecutor {
     inputData: any,
     context: ExecutionContext,
   ): Promise<any> {
-    const { endpoint, method, headers, requestBody, timeout } = config;
+    const { endpoint, method, headers, requestBody, timeout = 30000 } = config;
 
     this.log(context, `Making ${method} request to ${endpoint}`);
 
     try {
-      // Replace variables in URL and body
+      // Replace variables in URL and body using Handlebars
       const url = this.replaceVariables(endpoint, inputData);
       const body = requestBody
         ? this.replaceVariables(requestBody, inputData)
         : undefined;
 
-      const response = await fetch(url, {
+      // Parse body if it's a JSON string
+      let parsedBody = body;
+      if (body && typeof body === "string") {
+        try {
+          parsedBody = JSON.parse(body);
+        } catch {
+          // Keep as string if not valid JSON
+          parsedBody = body;
+        }
+      }
+
+      // Use ky for better HTTP handling
+      const response = await ky(url, {
         method,
         headers: {
           "Content-Type": "application/json",
           ...headers,
         },
-        body: body ? JSON.stringify(body) : undefined,
-        signal: AbortSignal.timeout(timeout),
+        json: parsedBody,
+        timeout: timeout,
+        throwHttpErrors: false, // Let us handle HTTP errors
       });
 
       let data;
