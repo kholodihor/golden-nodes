@@ -16,6 +16,7 @@ import { useDeleteNode } from "@/hooks/use-nodes";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 import NodeEditor from "@/components/editor/node-editor";
 import { ReactFlowNodeData } from "@/types";
+import { useNodeStatus } from "@/contexts/node-status-context";
 
 type TriggerNodeData = ReactFlowNodeData;
 
@@ -24,9 +25,13 @@ export default function TriggerNode({ data, selected, id }: NodeProps) {
   const deleteNode = useDeleteNode();
   const [showConfirmDialog, setShowConfirmDialog] = React.useState(false);
   const [showEditor, setShowEditor] = React.useState(false);
+  const { nodeStatuses } = useNodeStatus();
+
+  // Get current status from real-time updates
+  const currentStatus = nodeStatuses[id as string] || "idle";
 
   // Get status indicator
-  const getStatusIndicator = (status?: string) => {
+  const getStatusIndicator = (status: string) => {
     switch (status) {
       case "running":
         return <Clock className="h-3 w-3 text-blue-500 animate-spin" />;
@@ -76,7 +81,7 @@ export default function TriggerNode({ data, selected, id }: NodeProps) {
             >
               Trigger
             </Badge>
-            {getStatusIndicator(nodeData.status)}
+            {getStatusIndicator(currentStatus)}
           </div>
           <div className="flex items-center gap-2">
             <Button

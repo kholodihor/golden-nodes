@@ -2,7 +2,7 @@ import { requireAuth } from "@/utils/auth";
 import { Suspense } from "react";
 import { PageLoadingView } from "@/components/ui/loading-view";
 import { ClientErrorBoundary } from "@/components/ui/client-error-boundary";
-import { WorkflowEditorClient } from "@/components/workflow/workflow-editor-client";
+import { WorkflowEditorClientWithProvider } from "@/components/workflow/workflow-editor-client";
 
 interface PageProps {
   params: Promise<{
@@ -17,7 +17,7 @@ const page = async ({ params }: PageProps) => {
   return (
     <ClientErrorBoundary>
       <Suspense fallback={<PageLoadingView />}>
-        <WorkflowEditorClient workflowId={workflowId} />
+        <WorkflowEditorClientWithProvider workflowId={workflowId} />
       </Suspense>
     </ClientErrorBoundary>
   );

@@ -49,7 +49,7 @@ export function ExecuteWorkflowButton({
   );
   const trpc = useTRPC();
 
-  // Validate workflow structure
+  // Skip validation if no nodes provided (allows execution from workflows list)
   const validation = useWorkflowValidation(nodes, connections);
 
   const executeMutation = useMutation(
@@ -112,8 +112,9 @@ export function ExecuteWorkflowButton({
   );
 
   const handleExecute = () => {
-    // Check workflow validation before execution
-    if (!validation.canExecute) {
+    // Only check workflow validation if we have node data
+    // If no nodes provided, skip validation (allows execution from workflows list)
+    if (nodes.length > 0 && !validation.canExecute) {
       toast.error("Cannot execute workflow: " + validation.errors.join(", "));
       return;
     }
