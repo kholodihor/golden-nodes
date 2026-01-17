@@ -3,8 +3,35 @@ import { inngest } from "./client";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { generateText } from "ai";
 import { executorRegistry } from "@/lib/executors";
+import { httpRequestChannel } from "./realtime";
 
 const google = createGoogleGenerativeAI();
+
+// Helper function to publish node status events
+async function publishNodeStatus({
+  nodeId,
+  nodeName,
+  executionId,
+  message,
+}: {
+  nodeId: string;
+  nodeName: string;
+  executionId: string;
+  message?: string;
+}) {
+  try {
+    const channel = httpRequestChannel();
+    await channel["node.status"]({
+      nodeId,
+      nodeName,
+      executionId,
+      message,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Failed to publish node status:", error);
+  }
+}
 
 // Main workflow execution function
 export const executeWorkflow = inngest.createFunction(
@@ -166,6 +193,14 @@ async function executeNodeSequence({
     const nodeExecution = await step.run(
       `create-node-execution-${node.id}`,
       async () => {
+        // Publish loading event
+        await publishNodeStatus({
+          nodeId: node.id,
+          nodeName: node.name,
+          executionId,
+          message: "Starting node execution",
+        });
+
         return prisma.nodeExecution.create({
           data: {
             executionId,
@@ -198,6 +233,14 @@ async function executeNodeSequence({
 
       // Update node execution as success
       await step.run(`update-node-success-${node.id}`, async () => {
+        // Publish success event
+        await publishNodeStatus({
+          nodeId: node.id,
+          nodeName: node.name,
+          executionId,
+          message: "Node completed successfully",
+        });
+
         return prisma.nodeExecution.update({
           where: { id: nodeExecution.id },
           data: {
@@ -212,6 +255,14 @@ async function executeNodeSequence({
       nodeDataMap.set(node.id, nodeResult);
       results[node.id] = nodeResult;
     } catch (error) {
+      // Publish error event
+      await publishNodeStatus({
+        nodeId: node.id,
+        nodeName: node.name,
+        executionId,
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+
       // Update node execution as failed
       await step.run(`update-node-failed-${node.id}`, async () => {
         return prisma.nodeExecution.update({

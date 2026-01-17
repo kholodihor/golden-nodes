@@ -14,6 +14,7 @@
   "dependencies": {
     "@ai-sdk/google": "^3.0.1",
     "@hookform/resolvers": "^5.2.2",
+    "@inngest/realtime": "^0.4.5",
     "@polar-sh/better-auth": "^1.6.3",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^6.19.1",
