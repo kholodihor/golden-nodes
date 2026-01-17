@@ -53,7 +53,7 @@ export const executeWorkflow = inngest.createFunction(
 
     // Get workflow with nodes and connections
     const workflow = await step.run("get-workflow", async () => {
-      return prisma.workflow.findUnique({
+      const wf = await prisma.workflow.findUnique({
         where: { id: workflowId },
         include: {
           nodes: {
@@ -62,6 +62,17 @@ export const executeWorkflow = inngest.createFunction(
           connections: true,
         },
       });
+
+      // Debug logging
+      console.log("Workflow data:", JSON.stringify(wf, null, 2));
+      if (wf?.nodes) {
+        console.log(
+          "Node types:",
+          wf.nodes.map(n => ({ id: n.id, type: n.type, name: n.name })),
+        );
+      }
+
+      return wf;
     });
 
     if (!workflow) {
@@ -71,7 +82,13 @@ export const executeWorkflow = inngest.createFunction(
     // Find start node
     const startNode = workflow.nodes.find(node => node.type === "START");
     if (!startNode) {
-      throw new Error("No start node found in workflow");
+      console.error(
+        "Available node types:",
+        workflow.nodes.map(n => n.type),
+      );
+      throw new Error(
+        `No start node found in workflow. Available node types: ${workflow.nodes.map(n => n.type).join(", ")}`,
+      );
     }
 
     // Execute nodes in sequence

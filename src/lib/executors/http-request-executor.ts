@@ -42,6 +42,9 @@ export class HttpRequestNodeExecutor extends BaseNodeExecutor {
 
       this.log(context, `Making ${method || "GET"} request to ${url}`);
 
+      // Add a small delay to make status changes more visible
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
       // Use ky for better HTTP handling
       const response = await ky(url, {
         method: method || "GET",

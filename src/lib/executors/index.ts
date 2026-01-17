@@ -2,6 +2,7 @@ import { executorRegistry } from "../executor-registry";
 import { StartNodeExecutor } from "./start-executor";
 import { ActionNodeExecutor } from "./action-executor";
 import { ConditionNodeExecutor } from "./condition-executor";
+import { HttpRequestNodeExecutor } from "./http-request-executor";
 
 // Register all built-in executors
 export function initializeExecutors() {
@@ -9,6 +10,7 @@ export function initializeExecutors() {
   executorRegistry.register(new StartNodeExecutor());
   executorRegistry.register(new ActionNodeExecutor());
   executorRegistry.register(new ConditionNodeExecutor());
+  executorRegistry.register(new HttpRequestNodeExecutor());
 
   // Log registered executors
   const executors = executorRegistry.getAll();
@@ -25,4 +27,9 @@ initializeExecutors();
 export { executorRegistry };
 
 // Export executor classes for potential extension
-export { StartNodeExecutor, ActionNodeExecutor, ConditionNodeExecutor };
+export {
+  StartNodeExecutor,
+  ActionNodeExecutor,
+  ConditionNodeExecutor,
+  HttpRequestNodeExecutor,
+};

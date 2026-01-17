@@ -6,77 +6,91 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Variable } from "lucide-react";
+import { Settings, Variable, ChevronDown, ChevronUp } from "lucide-react";
 import { useUpdateNode } from "@/hooks/use-nodes";
 import Modal from "@/components/ui/modal";
 import { NodeEditorProps } from "@/types";
 
 // Template variables helper component
-const TemplateVariablesHelper = () => (
-  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-    <div className="flex items-center gap-2 mb-2">
-      <Variable className="h-4 w-4 text-blue-600" />
-      <Label className="text-sm font-medium text-gray-700">
-        Template Variables (Handlebars)
-      </Label>
-    </div>
-    <div className="space-y-1 text-xs text-gray-600">
-      <p>Use Handlebars syntax for powerful templating:</p>
-      <div className="grid grid-cols-1 gap-1 mt-2">
-        <code className="bg-white px-2 py-1 rounded border border-gray-300 block">
-          {"{{trigger.data.email}}"} - From trigger node
-        </code>
-        <code className="bg-white px-2 py-1 rounded border border-gray-300 block">
-          {"{{trigger.data.userId}}"} - User ID from trigger
-        </code>
-        <code className="bg-white px-2 py-1 rounded border border-gray-300 block">
-          {"{{trigger.data.name}}"} - User name from trigger
-        </code>
-        <code className="bg-white px-2 py-1 rounded border border-gray-300 block">
-          {"{{previousNode.response.data.id}}"} - Previous node response
-        </code>
-        <code className="bg-white px-2 py-1 rounded border border-gray-300 block">
-          {"{{workflow.id}}"} - Current workflow ID
-        </code>
-      </div>
-      <div className="mt-3 pt-3 border-t border-gray-200">
-        <p className="font-medium mb-1">Handlebars Features:</p>
-        <div className="grid grid-cols-1 gap-1">
-          <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
-            {"{{#if trigger.data.isActive}}Active{{else}}Inactive{{/if}}"}
-          </code>
-          <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
-            {"{{#each trigger.data.items}}{{this}}{{/each}}"}
-          </code>
-          <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
-            {"{{json previousNode.response}}"} - JSON stringify
-          </code>
+const TemplateVariablesHelper = () => {
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
+  return (
+    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="flex items-center gap-2 mb-2 w-full hover:bg-gray-100 rounded p-1 transition-colors"
+      >
+        <Variable className="h-4 w-4 text-blue-600" />
+        <Label className="text-sm font-medium text-gray-700">
+          Template Variables (Handlebars)
+        </Label>
+        {isCollapsed ? (
+          <ChevronDown className="h-4 w-4 text-gray-600 ml-auto" />
+        ) : (
+          <ChevronUp className="h-4 w-4 text-gray-600 ml-auto" />
+        )}
+      </button>
+      {!isCollapsed && (
+        <div className="space-y-1 text-xs text-gray-600">
+          <p>Use Handlebars syntax for powerful templating:</p>
+          <div className="grid grid-cols-1 gap-1 mt-2">
+            <code className="bg-white px-2 py-1 rounded border border-gray-300 block">
+              {"{{trigger.data.email}}"} - From trigger node
+            </code>
+            <code className="bg-white px-2 py-1 rounded border border-gray-300 block">
+              {"{{trigger.data.userId}}"} - User ID from trigger
+            </code>
+            <code className="bg-white px-2 py-1 rounded border border-gray-300 block">
+              {"{{trigger.data.name}}"} - User name from trigger
+            </code>
+            <code className="bg-white px-2 py-1 rounded border border-gray-300 block">
+              {"{{previousNode.response.data.id}}"} - Previous node response
+            </code>
+            <code className="bg-white px-2 py-1 rounded border border-gray-300 block">
+              {"{{workflow.id}}"} - Current workflow ID
+            </code>
+          </div>
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <p className="font-medium mb-1">Handlebars Features:</p>
+            <div className="grid grid-cols-1 gap-1">
+              <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
+                {"{{#if trigger.data.isActive}}Active{{else}}Inactive{{/if}}"}
+              </code>
+              <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
+                {"{{#each trigger.data.items}}{{this}}{{/each}}"}
+              </code>
+              <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
+                {"{{json previousNode.response}}"} - JSON stringify
+              </code>
+            </div>
+          </div>
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <p className="font-medium mb-1">Custom Helpers:</p>
+            <div className="grid grid-cols-1 gap-1">
+              <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
+                {"{{uppercase trigger.data.name}}"} - Uppercase text
+              </code>
+              <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
+                {"{{default trigger.data.email 'no-email@example.com'}}"} -
+                Default value
+              </code>
+              <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
+                {"{{timestamp}}"} - Current timestamp
+              </code>
+              <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
+                {"{{math trigger.data.count '+' 1}}"} - Math operations
+              </code>
+              <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
+                {"{{formatDate trigger.data.createdAt 'short'}}"} - Format date
+              </code>
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="mt-3 pt-3 border-t border-gray-200">
-        <p className="font-medium mb-1">Custom Helpers:</p>
-        <div className="grid grid-cols-1 gap-1">
-          <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
-            {"{{uppercase trigger.data.name}}"} - Uppercase text
-          </code>
-          <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
-            {"{{default trigger.data.email 'no-email@example.com'}}"} - Default
-            value
-          </code>
-          <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
-            {"{{timestamp}}"} - Current timestamp
-          </code>
-          <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
-            {"{{math trigger.data.count '+' 1}}"} - Math operations
-          </code>
-          <code className="bg-white px-2 py-1 rounded border border-gray-300 block text-xs">
-            {"{{formatDate trigger.data.createdAt 'short'}}"} - Format date
-          </code>
-        </div>
-      </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 export default function NodeEditor({
   isOpen,
